@@ -27,9 +27,9 @@ public class EmployeeBal : IEmployeeBal
         return _employeeDal.Delete(employeeNumber);
     }
 
-    public bool Update(string empNumber, Employee employeeInput)
+    public bool Update(string employeeNumber, Employee employeeInput)
     {
-        bool res=_employeeDal.Update(empNumber, employeeInput);
+        bool res=_employeeDal.Update(employeeNumber, employeeInput);
         return res;
     }
 }
