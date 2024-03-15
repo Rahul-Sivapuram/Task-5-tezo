@@ -211,12 +211,7 @@ public static class Program
 
     private static void Help()
     {
-        Console.WriteLine("Options");
-        Console.WriteLine("add    -    To add an employee");
-        Console.WriteLine("display -  To display all employee details");
-        Console.WriteLine("search  -    To display a particular employee data");
-        Console.WriteLine("delete  -    To delete an employee based on given employeenumber");
-        Console.WriteLine("update  -    To update employee details based on given employeenumber");
+        _consoleWrite.LogInfo(Constants.messages[6]);
     }
 
     public static void Main(string[] args)
