@@ -4,10 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace EmployeeManagement;
-public enum Location
+
+public enum Manager
 {
-    Hyderabad=0, 
-    Mumbai=1, 
-    Delhi=2, 
-    Bangalore=3
+    HasnuZama = 0,
+    Ram = 1,
+    Suresh = 2
 }

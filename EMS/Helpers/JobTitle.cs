@@ -4,10 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace EmployeeManagement;
-public enum Department
-{
-    ProductEngineering=0,
-    UIUX=1,
-    IT=2
-}
 
+public enum JobTitle
+{
+    UIUXDesigner = 0,
+    FullStackDeveloper = 1,
+    BackendDeveloper = 2,
+}

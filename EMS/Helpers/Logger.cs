@@ -3,30 +3,31 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace EmployeeManagement
+namespace EmployeeManagement;
+
+public class ConsoleLogger : ILogger
 {
-    public class Logger:ILogger
+    public void LogSuccess(string message)
     {
-        public void LogSuccess(string message)
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine(message);
-            Console.ForegroundColor = ConsoleColor.White;
-        }
-        public void LogData(string format, params object[] args)
-        {
-            string message = string.Format(format, args);
-            Console.WriteLine(message);
-        }
-        public void LogError(string message)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine(message);
-            Console.ForegroundColor = ConsoleColor.White;
-        }
-        public void LogInfo(string message)
-        {
-            Console.WriteLine(message);
-        }
+        SetForegroundColor(ConsoleColor.Green);
+        Console.WriteLine(message);
+        SetForegroundColor(ConsoleColor.White);
+    }
+
+    public void LogError(string message)
+    {
+        SetForegroundColor(ConsoleColor.Red);
+        Console.WriteLine(message);
+        SetForegroundColor(ConsoleColor.White);
+    }
+
+    public void LogInfo(string message)
+    {
+        Console.WriteLine(message);
+    }
+
+    private void SetForegroundColor(ConsoleColor color)
+    {
+        Console.ForegroundColor = color;
     }
 }

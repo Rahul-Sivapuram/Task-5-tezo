@@ -4,9 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace EmployeeManagement;
-public enum JobTitle
+
+public enum Location
 {
-    UIUXDesigner=0, 
-    FullStackDeveloper = 1,
-    BackendDeveloper =2,
+    Hyderabad = 0,
+    Mumbai = 1,
+    Delhi = 2,
+    Bangalore = 3
 }
