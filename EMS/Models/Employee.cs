@@ -1,4 +1,5 @@
 namespace EmployeeManagement;
+
 public class Employee
 {
     public string EmployeeNumber { get; set; }
