@@ -19,7 +19,6 @@ public class EmployeeDal : IEmployeeDal
 
     public List<Employee> FetchData(EmployeeFilter? employeeFilterInput)
     {
-        Console.WriteLine(Convert.ToInt32(employeeFilterInput.Location));
         List<Employee> employeeData = FetchData();
         var filteredEmployees = employeeData.Where(emp =>IsEmployeeFiltered(emp, employeeFilterInput)).ToList();
 
