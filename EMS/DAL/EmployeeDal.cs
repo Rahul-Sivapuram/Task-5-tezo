@@ -49,13 +49,13 @@ public class EmployeeDal : IEmployeeDal
         return true;
     }
 
-    public bool Update(string empNumber, Employee employeeInput)
+    public bool Update(string employeeNumber, Employee employeeInput)
     {
         List<Employee> employeeData = FetchData();
         bool found = false;
         foreach (var item in employeeData)
         {
-            if (item.EmployeeNumber == empNumber)
+            if (item.EmployeeNumber == employeeNumber)
             {
                 found = true;
                 item.EmployeeNumber ??= employeeInput.EmployeeNumber;

@@ -15,7 +15,7 @@ public interface IEmployeeDal
 
     bool Insert(Employee data);
 
-    bool Update(string empNumber, Employee employeeInput);
+    bool Update(string employeeNumber, Employee employeeInput);
 
     bool Delete(string employeeNumber);
 
