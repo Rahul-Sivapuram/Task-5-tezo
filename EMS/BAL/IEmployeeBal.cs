@@ -9,5 +9,5 @@ public interface IEmployeeBal
 {
     bool Add(Employee employee);
     bool Delete(string employeeNumber);
-    bool Update(string empNumber, Employee employeeInput);
+    bool Update(string employeeNumber, Employee employeeInput);
 }
