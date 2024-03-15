@@ -19,51 +19,65 @@ public class Options
     public bool Help { get; set; }
 }
 
-public class Program
+public static class Program
 {
-    private IConfigurationRoot _configuration;
-    private ILogger _logger;
-    private IEmployeeDal _employeeDal;
-    private IEmployeeBal _employeeBal;
-    private readonly string _filePath = "";
+    private static IConfigurationRoot _configuration;
+    private static ILogger _consoleWrite;
+    private static IEmployeeDal _employeeDal;
+    private static IEmployeeBal _employeeBal;
+    private static readonly string _filePath = "";
 
-    public Program()
+    static Program()
     {
         _configuration = new ConfigurationBuilder()
        .SetBasePath(Directory.GetCurrentDirectory())
        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
        .Build();
-        _logger = new Logger();
-        _filePath = _configuration["AppSettings:FilePath"];
-        _employeeDal = new EmployeeDal(_logger, _filePath);
-        _employeeBal = new EmployeeBal(_logger, _employeeDal);
+        _consoleWrite = new ConsoleLogger();
+        _filePath = _configuration["EmployeesJsonPath"];
+        _employeeDal = new EmployeeDal(_consoleWrite, _filePath);
+        _employeeBal = new EmployeeBal(_consoleWrite, _employeeDal);
     }
 
-    private Employee EmployeeInput()
+    private static int GetEnumValue<TEnum>(string prompt) where TEnum : struct,Enum
     {
-        long? mobileNumber = 0;
-        string? employeeNumber, firstName, lastName, dateOfBirth, joiningDate, emailId, location, jobTitle, department, manager, project;
-        int locationID=-1, departmentID = -1, jobID = -1;
+        _consoleWrite.LogInfo(prompt);
+        string input = Console.ReadLine();
+        TEnum enumValue;
+        if (Enum.TryParse(input, out enumValue))
+        {
+            return Convert.ToInt32(enumValue);
+        }
+        else
+        {
+            _consoleWrite.LogError($"Invalid input for {typeof(TEnum).Name}!");
+            return -1;
+        }
+    }
+    private static Employee GetEmployeeInput()
+    {
+        Employee employee = new Employee();
+        long? mobileNumber = null;
 
-        _logger.LogInfo("Enter Employee Number: ");
-        employeeNumber = Console.ReadLine();
+        _consoleWrite.LogInfo("Enter Employee Number: ");
+        employee.EmployeeNumber = Console.ReadLine();
 
-        _logger.LogInfo("Enter First Name: ");
-        firstName = Console.ReadLine();
+        _consoleWrite.LogInfo("Enter First Name: ");
+        employee.FirstName = Console.ReadLine();
 
-        _logger.LogInfo("Enter Last Name: ");
-        lastName = Console.ReadLine();
+        _consoleWrite.LogInfo("Enter Last Name: ");
+        employee.LastName = Console.ReadLine();
 
-        _logger.LogInfo("Enter Date Of Birth:(d/m/y)");
-        dateOfBirth = Console.ReadLine();
+        _consoleWrite.LogInfo("Enter Date Of Birth:(d/m/y)");
+        employee.Dob = Console.ReadLine();
 
-        _logger.LogInfo("Enter Email ID: ");
-        emailId = Console.ReadLine();
+        _consoleWrite.LogInfo("Enter Email ID: ");
+        string emailId = Console.ReadLine();
         if (!string.IsNullOrWhiteSpace(emailId))
         {
             while (!Regex.IsMatch(emailId, @"^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$"))
             {
-                _logger.LogError("Invalid email format. Please enter a valid email address or leave blank to skip.");
+                _consoleWrite.LogError("Invalid email format. Please enter a valid email address or leave blank to skip.");
                 emailId = Console.ReadLine();
                 if (string.IsNullOrWhiteSpace(emailId))
                 {
@@ -71,14 +85,15 @@ public class Program
                 }
             }
         }
+        employee.EmailId = emailId;
 
-        _logger.LogInfo("Enter Mobile Number: ");
+        _consoleWrite.LogInfo("Enter Mobile Number: ");
         string mobileInput = Console.ReadLine();
         if (!string.IsNullOrWhiteSpace(mobileInput))
         {
             while (!(long.TryParse(mobileInput, out _) && mobileInput.Length == 10))
             {
-                _logger.LogError("Invalid input for Mobile Number. Please enter a valid mobile number or leave blank to skip.");
+                _consoleWrite.LogError("Invalid input for Mobile Number. Please enter a valid mobile number or leave blank to skip.");
                 mobileInput = Console.ReadLine();
                 if (string.IsNullOrWhiteSpace(mobileInput))
                 {
@@ -90,80 +105,26 @@ public class Program
                 mobileNumber = long.Parse(mobileInput);
             }
         }
-        _logger.LogInfo("Enter Joining Date: ");
-        joiningDate = Console.ReadLine();
+        employee.MobileNumber = mobileNumber ?? 0;
 
-        _logger.LogInfo("Enter Location: ");
-        location = Console.ReadLine();
-        Location locationEnum;
-        if (Enum.TryParse(location, out locationEnum))
-        {
-            locationID = (int)locationEnum;
-        }
-        else
-        {
-            _logger.LogError("Invalid location input!");
-        }
+        _consoleWrite.LogInfo("Enter Joining Date: ");
+        employee.JoiningDate = Console.ReadLine();
 
-        _logger.LogInfo("Enter Job Title: ");
-        jobTitle = Console.ReadLine();
-        JobTitle jobTitleEnum;
-        if (Enum.TryParse(jobTitle, out jobTitleEnum))
-        {
-            jobID = (int)jobTitleEnum;
-        }
-        else
-        {
-            _logger.LogError("Invalid job title input!");
-        }
-
-        _logger.LogInfo("Enter Department: ");
-        department = Console.ReadLine();
-        Department departmentEnum;
-        if (Enum.TryParse(department, out departmentEnum))
-        {
-            departmentID = (int)departmentEnum;
-          
-        }
-        else
-        {
-            _logger.LogError("Invalid department input!");
-        }
-
-        _logger.LogInfo("Enter Assigned Manager: ");
-        manager = Console.ReadLine();
-
-        _logger.LogInfo("Enter Assigned Project: ");
-        project = Console.ReadLine();
-
-        Employee data = new Employee
-        {
-            EmployeeNumber = employeeNumber,
-            FirstName = firstName,
-            LastName = lastName,
-            Dob = dateOfBirth,
-            EmailId = emailId,
-            MobileNumber = (long)mobileNumber,
-            JoiningDate = joiningDate,
-            Location = location,
-            LocationID = locationID,
-            JobTitle = jobTitle,
-            JobID = jobID,
-            Department = department,
-            DeptID = departmentID,
-            Manager = manager,
-            Project = project,
-        };
-        return data;
+        employee.LocationId = GetEnumValue<Location>("Enter Location: ");
+        employee.JobId = GetEnumValue<JobTitle>("Enter Job Title: ");
+        employee.DeptId = GetEnumValue<Department>("Enter Department: ");
+        employee.ManagerId = GetEnumValue<Manager>("Enter Assigned Manager: ");
+        employee.ProjectId = GetEnumValue<Project>("Enter Assigned Project: ");
+        return employee;
     }
 
-    private EmployeeFilter EmployeeFilterInput()
+    private static EmployeeFilter GetEmployeeFilterInput()
     {
         EmployeeFilter employeeFilterObject = new EmployeeFilter();
-        _logger.LogInfo("Enter an alphabet:");
+        _consoleWrite.LogInfo("Enter an alphabet:");
         employeeFilterObject.EmployeeName = Console.ReadLine();
 
-        _logger.LogInfo("Enter Location:");
+        _consoleWrite.LogInfo("Enter Location:");
         string locationInput = Console.ReadLine();
         if (Enum.TryParse(locationInput, true, out Location location))
         {
@@ -171,10 +132,11 @@ public class Program
         }
         else
         {
-            Console.WriteLine("Invalid location input!");
+            employeeFilterObject.Location = null;
+
         }
 
-        _logger.LogInfo("Enter JobTitle:");
+        _consoleWrite.LogInfo("Enter JobTitle:");
         string jobTitleInput = Console.ReadLine();
         if (Enum.TryParse(jobTitleInput, true, out JobTitle jobTitle))
         {
@@ -182,19 +144,39 @@ public class Program
         }
         else
         {
-            Console.WriteLine("Invalid location input!");
+            employeeFilterObject.JobTitle = null;
+
         }
 
-        _logger.LogInfo("Enter Manager:");
-        employeeFilterObject.Manager = Console.ReadLine();
+        _consoleWrite.LogInfo("Enter Manager:");
+        string managerInput = Console.ReadLine();
+        if (Enum.TryParse(managerInput, true, out Manager manager))
+        {
+            employeeFilterObject.Manager = manager;
+        }
+        else
+        {
+            employeeFilterObject.Manager = null;
+
+        }
 
 
-        _logger.LogInfo("Enter Project:");
-        employeeFilterObject.Project = Console.ReadLine();
+        _consoleWrite.LogInfo("Enter Project:");
+        string projectInput = Console.ReadLine();
+        if (Enum.TryParse(projectInput, true, out Project project))
+        {
+            employeeFilterObject.Project = project;
+        }
+        else
+        {
+            employeeFilterObject.Project = null;
+
+        }
+
         return employeeFilterObject;
     }
 
-    private void Get(string? employeeNumber)
+    private static void Get(string? employeeNumber)
     {
         List<Employee> employees = _employeeDal.FetchData();
         if (employees.Count > 0 && String.IsNullOrEmpty(employeeNumber))
@@ -202,7 +184,10 @@ public class Program
 
             foreach (var item in employees)
             {
-                _logger.LogData("EmpNumber: {0}\n" + "EmpFirstName: {1}\n" + "EmpLastName: {2}\n" + "EmpDob: {3}\n" + "EmpEmailId: {4}\n" + "EmpMobileNumber: {5}\n" + "EmpJoiningDate: {6}\n" + "EmpLocation: {7}\n" + "EmpJobTitle: {8}\n" + "EmpDepartment: {9}\n" + "EmpManager: {10}\n" + "EmpProject: {11}\n", item.EmployeeNumber, item.FirstName, item.LastName, item.Dob, item.EmailId, item.MobileNumber, item.JoiningDate, item.Location, item.JobTitle, item.Department, item.Manager, item.Project);
+                _consoleWrite.LogInfo(string.Format(Constants.EmployeeDetailsTemplate,
+                item.EmployeeNumber, item.FirstName, item.LastName, item.Dob, item.EmailId,
+                item.MobileNumber, item.JoiningDate, Enum.GetName(typeof(Location), item.LocationId), Enum.GetName(typeof(JobTitle), item.JobId),
+                Enum.GetName(typeof(Department), item.DeptId), Enum.GetName(typeof(Manager), item.ManagerId), Enum.GetName(typeof(Project), item.ProjectId)));
             }
         }
         else if (employees.Count > 0 && !string.IsNullOrEmpty(employeeNumber))
@@ -211,94 +196,179 @@ public class Program
             {
                 if (item.EmployeeNumber == employeeNumber)
                 {
-                    _logger.LogData("EmpNumber: {0}\n" + "EmpFirstName: {1}\n" + "EmpLastName: {2}\n" + "EmpDob: {3}\n" + "EmpEmailId: {4}\n" + "EmpMobileNumber: {5}\n" + "EmpJoiningDate: {6}\n" + "EmpLocation: {7}\n" + "EmpJobTitle: {8}\n" + "EmpDepartment: {9}\n" + "EmpManager: {10}\n" + "EmpProject: {11}", item.EmployeeNumber, item.FirstName, item.LastName, item.Dob, item.EmailId, item.MobileNumber, item.JoiningDate, item.Location, item.JobTitle, item.Department, item.Manager, item.Project);
+                    _consoleWrite.LogInfo(string.Format(Constants.EmployeeDetailsTemplate,
+                item.EmployeeNumber, item.FirstName, item.LastName, item.Dob, item.EmailId,
+                item.MobileNumber, item.JoiningDate, Enum.GetName(typeof(Location), item.LocationId), Enum.GetName(typeof(JobTitle), item.JobId),
+                Enum.GetName(typeof(Department), item.DeptId), Enum.GetName(typeof(Manager), item.ManagerId), Enum.GetName(typeof(Project), item.ProjectId)));
                 }
             }
         }
         else
         {
-            _logger.LogError("No Employee Data");
+            _consoleWrite.LogError(Constants.messages[5]);
         }
     }
 
-    private void Help()
+    private static void Help()
     {
-        _logger.LogInfo("Options\n" + "add \t - \t To add an employee\n" + "display - \t To display all employee details\n" + "search \t - \t To display a particular employee data\n" + "delete \t - \t To delete an employee based on given employeenumber\n" + "update \t - \t To update employee details based on given employeenumber\n");
+        Console.WriteLine("Options");
+        Console.WriteLine("add    -    To add an employee");
+        Console.WriteLine("display -  To display all employee details");
+        Console.WriteLine("search  -    To display a particular employee data");
+        Console.WriteLine("delete  -    To delete an employee based on given employeenumber");
+        Console.WriteLine("update  -    To update employee details based on given employeenumber");
     }
 
     public static void Main(string[] args)
     {
-        Program programObject = new Program();
         Parser.Default.ParseArguments<Options>(args)
        .WithParsed(options =>
        {
            if (options.Help)
            {
                var helpText = HelpText.AutoBuild(Parser.Default.ParseArguments<Options>(args));
-               programObject._logger.LogError(helpText);
+               _consoleWrite.LogError(helpText);
                return;
            }
 
            switch (options.Operation.ToLower())
            {
                case "add":
-                   Employee data = programObject.EmployeeInput();
-                   List<Employee> updatedEmployeeData = programObject._employeeBal.Add(data);
-                   if (programObject._employeeDal.Insert(updatedEmployeeData))
+                   Employee employee = GetEmployeeInput();
+                   bool isAddSuccessful = _employeeBal.Add(employee);
+                   if (isAddSuccessful)
                    {
-                       programObject._logger.LogSuccess($"{data.EmployeeNumber} added successfully");
+                       _consoleWrite.LogSuccess(string.Format(Constants.messages[7], employee.EmployeeNumber));
                    }
                    break;
 
                case "display":
-                   programObject.Get(options.Identifier);
+                   Get(options.Identifier);
                    break;
 
                case "filter":
-                   EmployeeFilter filterInput = programObject.EmployeeFilterInput();
-                   List<Employee> filteredEmployeeData = programObject._employeeDal.FetchData(filterInput);
+                   EmployeeFilter filterInput = GetEmployeeFilterInput();
+                   List<Employee> filteredEmployeeData = _employeeDal.FetchData(filterInput);
                    if (filteredEmployeeData.Count > 0)
                    {
-                       programObject._logger.LogSuccess("Filtered Employees:");
                        foreach (var item in filteredEmployeeData)
                        {
-                           programObject._logger.LogData("\nEmpNumber: {0}\n" + "EmpFirstName: {1}\n" + "EmpLastName: {2}\n" + "EmpDob: {3}\n" + "EmpEmailId: {4}\n" + "EmpMobileNumber: {5}\n" + "EmpJoiningDate: {6}\n" + "EmpLocation: {7}\n" + "EmpJobTitle: {8}\n" + "EmpDepartment: {9}\n" + "EmpManager: {10}\n" + "EmpProject: {11}\n", item.EmployeeNumber, item.FirstName, item.LastName, item.Dob, item.EmailId, item.MobileNumber, item.JoiningDate, item.Location, item.JobTitle, item.Department, item.Manager, item.Project);
+                           _consoleWrite.LogInfo(string.Format(Constants.EmployeeDetailsTemplate,
+                            item.EmployeeNumber, item.FirstName, item.LastName, item.Dob, item.EmailId,
+                            item.MobileNumber, item.JoiningDate, Enum.GetName(typeof(Location), item.LocationId), Enum.GetName(typeof(JobTitle), item.JobId),
+                            Enum.GetName(typeof(Department), item.DeptId), Enum.GetName(typeof(Manager), item.ManagerId), Enum.GetName(typeof(Project), item.ProjectId)));
                        }
                    }
                    else
                    {
-                       programObject._logger.LogError("No Employee Found!");
+                       _consoleWrite.LogError(Constants.messages[5]);
                    }
                    break;
 
                case "delete":
-                   programObject._employeeBal.Delete(options.Identifier);
+                   bool res = _employeeBal.Delete(options.Identifier);
+                   if (res)
+                   {
+                       _consoleWrite.LogSuccess(Constants.messages[0]);
+                   }
+                   else
+                   {
+                       _consoleWrite.LogError(Constants.messages[1]);
+                   }
                    break;
 
                case "help":
-                   programObject.Help();
+                   Help();
                    break;
 
                case "update":
-                   Employee data1 = programObject.EmployeeInput();
-                   List<Employee> edittedEmployeeData = programObject._employeeBal.Edit(options.Identifier, data1);
-                   bool res = programObject._employeeDal.Update(edittedEmployeeData);
-                   if (res)
+                   Employee employeeToUpdate = GetEmployeeInput();
+                   bool isUpdated = _employeeBal.Update(options.Identifier, employeeToUpdate);
+                   if (isUpdated)
                    {
-                       programObject._logger.LogSuccess("Employee updated successfully.");
+                       _consoleWrite.LogSuccess(string.Format(Constants.messages[4], options.Identifier));
+                   }
+                   else
+                   {
+                       _consoleWrite.LogSuccess(string.Format(Constants.messages[3], options.Identifier));
                    }
                    break;
 
                default:
-                   programObject._logger.LogError("Invalid operation. Valid operations are: add, display, update, delete, filter, help");
+                   _consoleWrite.LogError(Constants.messages[8]);
                    break;
            }
        })
        .WithNotParsed(errors =>
        {
-           programObject._logger.LogError("Invalid command-line arguments.");
+           _consoleWrite.LogError(Constants.messages[9]);
        });
     }
 }
 
 
+
+
+/*
+
+        _consoleWrite.LogInfo("Enter Location: ");
+        location = Console.ReadLine();
+        Location locationEnum;
+        if (Enum.TryParse(location, out locationEnum))
+        {
+            locationID = (int)locationEnum;
+        }
+        else
+        {
+            _consoleWrite.LogError("Invalid location input!");
+        }
+
+        _consoleWrite.LogInfo("Enter Job Title: ");
+        jobTitle = Console.ReadLine();
+        JobTitle jobTitleEnum;
+        if (Enum.TryParse(jobTitle, out jobTitleEnum))
+        {
+            jobID = (int)jobTitleEnum;
+        }
+        else
+        {
+            _consoleWrite.LogError("Invalid job title input!");
+        }
+
+        _consoleWrite.LogInfo("Enter Department: ");
+        department = Console.ReadLine();
+        Department departmentEnum;
+        if (Enum.TryParse(department, out departmentEnum))
+        {
+            deptID = (int)departmentEnum;
+
+        }
+        else
+        {
+            _consoleWrite.LogError("Invalid department input!");
+        }
+
+        _consoleWrite.LogInfo("Enter Assigned Manager: ");
+        manager = Console.ReadLine();
+        Manager managerEnum;
+        if (Enum.TryParse(location, out managerEnum))
+        {
+            managerID = (int)managerEnum;
+        }
+        else
+        {
+            _consoleWrite.LogError("Invalid location input!");
+        }
+
+        _consoleWrite.LogInfo("Enter Assigned Project: ");
+        project = Console.ReadLine();
+        Project projectEnum;
+        if (Enum.TryParse(location, out projectEnum))
+        {
+            projectID = (int)projectEnum;
+        }
+        else
+        {
+            _consoleWrite.LogError("Invalid location input!");
+        }
+*/
