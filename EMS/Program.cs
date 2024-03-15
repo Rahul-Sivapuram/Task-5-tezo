@@ -25,7 +25,7 @@ public static class Program
     private static ILogger _consoleWrite;
     private static IEmployeeDal _employeeDal;
     private static IEmployeeBal _employeeBal;
-    private static readonly string _filePath = "";
+    private static readonly string _filePath = "";  
 
     static Program()
     {
@@ -300,70 +300,3 @@ public static class Program
        });
     }
 }
-
-
-
-
-/*
-
-        _consoleWrite.LogInfo("Enter Location: ");
-        location = Console.ReadLine();
-        Location locationEnum;
-        if (Enum.TryParse(location, out locationEnum))
-        {
-            locationID = (int)locationEnum;
-        }
-        else
-        {
-            _consoleWrite.LogError("Invalid location input!");
-        }
-
-        _consoleWrite.LogInfo("Enter Job Title: ");
-        jobTitle = Console.ReadLine();
-        JobTitle jobTitleEnum;
-        if (Enum.TryParse(jobTitle, out jobTitleEnum))
-        {
-            jobID = (int)jobTitleEnum;
-        }
-        else
-        {
-            _consoleWrite.LogError("Invalid job title input!");
-        }
-
-        _consoleWrite.LogInfo("Enter Department: ");
-        department = Console.ReadLine();
-        Department departmentEnum;
-        if (Enum.TryParse(department, out departmentEnum))
-        {
-            deptID = (int)departmentEnum;
-
-        }
-        else
-        {
-            _consoleWrite.LogError("Invalid department input!");
-        }
-
-        _consoleWrite.LogInfo("Enter Assigned Manager: ");
-        manager = Console.ReadLine();
-        Manager managerEnum;
-        if (Enum.TryParse(location, out managerEnum))
-        {
-            managerID = (int)managerEnum;
-        }
-        else
-        {
-            _consoleWrite.LogError("Invalid location input!");
-        }
-
-        _consoleWrite.LogInfo("Enter Assigned Project: ");
-        project = Console.ReadLine();
-        Project projectEnum;
-        if (Enum.TryParse(location, out projectEnum))
-        {
-            projectID = (int)projectEnum;
-        }
-        else
-        {
-            _consoleWrite.LogError("Invalid location input!");
-        }
-*/
