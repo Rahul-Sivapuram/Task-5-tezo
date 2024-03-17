@@ -7,8 +7,8 @@ namespace EmployeeManagement;
 
 public enum Department
 {
-    ProductEngineering = 0,
-    UIUX = 1,
-    IT = 2
+    ProductEngineering = 1,
+    UIUX = 2,
+    IT = 3
 }
 

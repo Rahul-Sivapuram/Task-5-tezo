@@ -9,14 +9,13 @@ namespace EmployeeManagement;
 public class EmployeeBal : IEmployeeBal
 {
     private readonly IEmployeeDal _employeeDal;
-    private readonly ILogger _consolWrite;
-
+    private readonly ILogger _consoleWriter;
     public EmployeeBal(ILogger loggerObject, IEmployeeDal employeeDalObject)
     {
         _employeeDal = employeeDalObject;
-        _consolWrite = loggerObject;
+        _consoleWriter = loggerObject;
     }
-    
+
     public bool Add(Employee employee)
     {
         return _employeeDal.Insert(employee);
@@ -27,10 +26,35 @@ public class EmployeeBal : IEmployeeBal
         return _employeeDal.Delete(employeeNumber);
     }
 
-    public bool Update(string employeeNumber, Employee employeeInput)
+    public bool Update(string employeeNumber, Employee employee)
     {
-        bool res=_employeeDal.Update(employeeNumber, employeeInput);
+        bool res = _employeeDal.Update(employeeNumber, employee);
         return res;
+    }
+
+    public List<Employee> Filter(EmployeeFilter employee)
+    {
+        return _employeeDal.Filter(employee);
+    }
+
+    public List<Employee> Display(string employeeNumber)
+    {
+        List<Employee> employeeData = _employeeDal.FetchData();
+        if (employeeNumber == null)
+        {
+            return employeeData;
+        }
+        else
+        {
+            foreach (Employee employee in employeeData)
+            {
+                if (employee.EmployeeNumber == employeeNumber)
+                {
+                    return new List<Employee>() { employee };
+                }
+            }
+        }
+        return employeeData;
     }
 }
 

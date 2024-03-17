@@ -7,7 +7,7 @@ namespace EmployeeManagement;
 
 public enum JobTitle
 {
-    UIUXDesigner = 0,
-    FullStackDeveloper = 1,
-    BackendDeveloper = 2,
+    UIUXDesigner = 1,
+    FullStackDeveloper = 2,
+    BackendDeveloper = 3,
 }

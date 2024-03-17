@@ -8,21 +8,17 @@ namespace EmployeeManagement;
 
 public class EmployeeDal : IEmployeeDal
 {
-    private readonly ILogger _consolWrite;
+    private readonly ILogger _consoleWriter;
     private readonly string _filePath;
-
     public EmployeeDal(ILogger loggerObject, string path)
     {
-        _consolWrite = loggerObject;
+        _consoleWriter = loggerObject;
         _filePath = path;
     }
-
-    public List<Employee> FetchData(EmployeeFilter? employeeFilterInput)
+    public List<Employee> Filter(EmployeeFilter? employee)
     {
-     
         List<Employee> employeeData = FetchData();
-        var filteredEmployees = employeeData.Where(emp =>IsEmployeeFiltered(emp, employeeFilterInput)).ToList();
-
+        var filteredEmployees = employeeData.Where(emp => IsEmployeeFiltered(emp, employee)).ToList();
         return filteredEmployees;
     }
 
@@ -38,18 +34,18 @@ public class EmployeeDal : IEmployeeDal
         List<Employee> employeeData = FetchData();
         employeeData.Add(employee);
         string jsonUpdatedData = SerializeEmployees(employeeData);
-        File.WriteAllText(_filePath, jsonUpdatedData);
+        Save(_filePath, jsonUpdatedData);
         return true;
     }
 
     public bool Insert(List<Employee> employeeData)
     {
         string jsonUpdatedData = SerializeEmployees(employeeData);
-        File.WriteAllText(_filePath, jsonUpdatedData);
+        Save(_filePath, jsonUpdatedData);
         return true;
     }
 
-    public bool Update(string employeeNumber, Employee employeeInput)
+    public bool Update(string employeeNumber, Employee employee)
     {
         List<Employee> employeeData = FetchData();
         bool found = false;
@@ -58,35 +54,35 @@ public class EmployeeDal : IEmployeeDal
             if (item.EmployeeNumber == employeeNumber)
             {
                 found = true;
-                item.EmployeeNumber ??= employeeInput.EmployeeNumber;
-                item.FirstName ??= employeeInput.FirstName;
-                item.LastName ??= employeeInput.LastName;
-                item.Dob ??= employeeInput.Dob;
-                item.EmailId ??= employeeInput.EmailId;
-                if (employeeInput.MobileNumber != 0)
+                item.EmployeeNumber ??= employee.EmployeeNumber;
+                item.FirstName ??= employee.FirstName;
+                item.LastName ??= employee.LastName;
+                item.Dob ??= employee.Dob;
+                item.EmailId ??= employee.EmailId;
+                if (employee.MobileNumber != 0)
                 {
-                    item.MobileNumber = employeeInput.MobileNumber;
+                    item.MobileNumber = employee.MobileNumber;
                 }
-                item.JoiningDate ??= employeeInput.JoiningDate;
-                if (employeeInput.LocationId != -1)
+                item.JoiningDate ??= employee.JoiningDate;
+                if (employee.LocationId != -1)
                 {
-                    item.LocationId = employeeInput.LocationId;
+                    item.LocationId = employee.LocationId;
                 }
-                if (employeeInput.JobId != -1)
+                if (employee.JobId != -1)
                 {
-                    item.JobId = employeeInput.JobId;
+                    item.JobId = employee.JobId;
                 }
-                if (employeeInput.DeptId != -1)
+                if (employee.DeptId != -1)
                 {
-                    item.DeptId = employeeInput.DeptId;
+                    item.DeptId = employee.DeptId;
                 }
-                if (employeeInput.ManagerId != -1)
+                if (employee.ManagerId != -1)
                 {
-                    item.ManagerId = employeeInput.ManagerId;
+                    item.ManagerId = employee.ManagerId;
                 }
-                if (employeeInput.ProjectId != -1)
+                if (employee.ProjectId != -1)
                 {
-                    item.ProjectId = employeeInput.ProjectId;
+                    item.ProjectId = employee.ProjectId;
                 }
             }
         }
@@ -97,24 +93,15 @@ public class EmployeeDal : IEmployeeDal
     public bool Delete(string employeeNumber)
     {
         List<Employee> employeeData = FetchData();
-        int index = -1;
-        for (int i = 0; i < employeeData.Count; i++)
+        var employeeToRemove = employeeData.FirstOrDefault(e => e.EmployeeNumber == employeeNumber);
+        if (employeeToRemove != null)
         {
-            if (employeeData[i].EmployeeNumber == employeeNumber)
-            {
-                index = i;
-                break;
-            }
-        }
-        if (index != -1)
-        {
-            employeeData.RemoveAt(index);
+            employeeData.Remove(employeeToRemove);
             bool res = Insert(employeeData);
             return res;
         }
         else
         {
-            _consolWrite.LogError(Constants.messages[2]);
             return false;
         }
     }
@@ -129,18 +116,23 @@ public class EmployeeDal : IEmployeeDal
         return JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true });
     }
 
-    private bool IsEmployeeFiltered(Employee emp, EmployeeFilter employeeFilterInput)
+    private bool IsEmployeeFiltered(Employee emp, EmployeeFilter employee)
     {
-        bool filterEmployeeName = string.IsNullOrEmpty(employeeFilterInput.EmployeeName) ||
-                                   emp.FirstName.StartsWith(employeeFilterInput.EmployeeName);
-        bool filterLocation = !employeeFilterInput.Location.HasValue ||
-                              emp.LocationId == Convert.ToInt32(employeeFilterInput.Location);
-        bool filterJobTitle = !employeeFilterInput.JobTitle.HasValue ||
-                              emp.JobId == Convert.ToInt32(employeeFilterInput.JobTitle);
-        bool filterManager = !employeeFilterInput.Manager.HasValue ||
-                             emp.ManagerId == Convert.ToInt32(employeeFilterInput.Manager);
-        bool filterProject = !employeeFilterInput.Project.HasValue ||
-                             emp.ProjectId == Convert.ToInt32(employeeFilterInput.Project);
+        bool filterEmployeeName = string.IsNullOrEmpty(employee.EmployeeName) ||
+                                   emp.FirstName.StartsWith(employee.EmployeeName);
+        bool filterLocation = !employee.Location.HasValue ||
+                              emp.LocationId == Convert.ToInt32(employee.Location);
+        bool filterJobTitle = !employee.JobTitle.HasValue ||
+                              emp.JobId == Convert.ToInt32(employee.JobTitle);
+        bool filterManager = !employee.Manager.HasValue ||
+                             emp.ManagerId == Convert.ToInt32(employee.Manager);
+        bool filterProject = !employee.Project.HasValue ||
+                             emp.ProjectId == Convert.ToInt32(employee.Project);
         return filterEmployeeName && filterLocation && filterJobTitle && filterManager && filterProject;
+    }
+
+    private void Save(string filePath, string content)
+    {
+        File.WriteAllText(filePath, content);
     }
 }

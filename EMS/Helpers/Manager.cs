@@ -7,7 +7,7 @@ namespace EmployeeManagement;
 
 public enum Manager
 {
-    HasnuZama = 0,
-    Ram = 1,
-    Suresh = 2
+    HasnuZama = 1,
+    Ram = 2,
+    Suresh = 3
 }

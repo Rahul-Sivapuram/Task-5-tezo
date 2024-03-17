@@ -7,11 +7,11 @@
     "EmailId": "rohan@gmail.com",
     "MobileNumber": 1234567891,
     "JoiningDate": "15/01/2024",
-    "LocationId": 0,
-    "JobId": 0,
-    "DeptId": 0,
-    "ManagerId": 0,
-    "ProjectId": 0
+    "LocationId": 1,
+    "JobId": 1,
+    "DeptId": 1,
+    "ManagerId": 1,
+    "ProjectId": 1
   },
   {
     "EmployeeNumber": "TZ103",
@@ -21,11 +21,11 @@
     "EmailId": "nischelp@gmail.com",
     "MobileNumber": 5678905678,
     "JoiningDate": "17/01/2024",
-    "LocationId": 0,
-    "JobId": 0,
-    "DeptId": 0,
-    "ManagerId": 0,
-    "ProjectId": 0
+    "LocationId": 1,
+    "JobId": 1,
+    "DeptId": 1,
+    "ManagerId": 1,
+    "ProjectId": 1
   },
   {
     "EmployeeNumber": "TZ106",
@@ -35,11 +35,11 @@
     "EmailId": "satvik@gmail.com",
     "MobileNumber": 1234567892,
     "JoiningDate": "17/01/2024",
-    "LocationId": 0,
-    "JobId": 0,
-    "DeptId": 0,
-    "ManagerId": 0,
-    "ProjectId": 0
+    "LocationId": 1,
+    "JobId": 1,
+    "DeptId": 1,
+    "ManagerId": 1,
+    "ProjectId": 1
   },
   {
     "EmployeeNumber": "TZ107",
@@ -49,11 +49,11 @@
     "EmailId": "anirudh@gmail.com",
     "MobileNumber": 1234567895,
     "JoiningDate": "17/01/2024",
-    "LocationId": 0,
-    "JobId": 0,
-    "DeptId": 0,
-    "ManagerId": 0,
-    "ProjectId": 0
+    "LocationId": 1,
+    "JobId": 1,
+    "DeptId": 1,
+    "ManagerId": 1,
+    "ProjectId": 1
   },
   {
     "EmployeeNumber": "TZ104",
@@ -63,11 +63,11 @@
     "EmailId": "richard@gmail.com",
     "MobileNumber": 45678956789,
     "JoiningDate": "15/01/2024",
-    "LocationId": 0,
-    "JobId": 0,
-    "DeptId": 0,
-    "ManagerId": 0,
-    "ProjectId": 0
+    "LocationId": 1,
+    "JobId": 1,
+    "DeptId": 1,
+    "ManagerId": 1,
+    "ProjectId": 1
   },
   {
     "EmployeeNumber": "TZ108",
@@ -77,11 +77,11 @@
     "EmailId": "james@gmail.com",
     "MobileNumber": 1234567892,
     "JoiningDate": "17/01/2024",
-    "LocationId": 0,
-    "JobId": 0,
-    "DeptId": 0,
-    "ManagerId": 0,
-    "ProjectId": 0
+    "LocationId": 1,
+    "JobId": 1,
+    "DeptId": 1,
+    "ManagerId": 1,
+    "ProjectId": 1
   },
   {
     "EmployeeNumber": "TZ109",
@@ -91,11 +91,11 @@
     "EmailId": "virat@gmail.com",
     "MobileNumber": 1234567890,
     "JoiningDate": "17/01/2024",
-    "LocationId": 0,
-    "JobId": 0,
-    "DeptId": 0,
-    "ManagerId": 0,
-    "ProjectId": 0
+    "LocationId": 1,
+    "JobId": 1,
+    "DeptId": 1,
+    "ManagerId": 1,
+    "ProjectId": 1
   },
   {
     "EmployeeNumber": "TZ1010",
@@ -105,11 +105,11 @@
     "EmailId": "kim@gmail.com",
     "MobileNumber": 1234567892,
     "JoiningDate": "17/01/2024",
-    "LocationId": 0,
-    "JobId": 0,
-    "DeptId": 0,
-    "ManagerId": 0,
-    "ProjectId": 0
+    "LocationId": 1,
+    "JobId": 1,
+    "DeptId": 1,
+    "ManagerId": 1,
+    "ProjectId": 1
   },
   {
     "EmployeeNumber": "TZ1011",
@@ -119,11 +119,11 @@
     "EmailId": "dino@gmail.com",
     "MobileNumber": 1234567895,
     "JoiningDate": "12/01/2023",
-    "LocationId": 0,
-    "JobId": 0,
-    "DeptId": 0,
-    "ManagerId": 0,
-    "ProjectId": 0
+    "LocationId": 1,
+    "JobId": 1,
+    "DeptId": 1,
+    "ManagerId": 1,
+    "ProjectId": 1
   },
   {
     "EmployeeNumber": "TZ1012",
@@ -133,25 +133,11 @@
     "EmailId": "kalyan@gmail.com",
     "MobileNumber": 1234567890,
     "JoiningDate": "12/02/2023",
-    "LocationId": 0,
-    "JobId": 0,
-    "DeptId": 0,
-    "ManagerId": 0,
-    "ProjectId": 0
-  },
-  {
-    "EmployeeNumber": "TZ101",
-    "FirstName": "rahul",
-    "LastName": "s",
-    "Dob": "26/04/2002",
-    "EmailId": "rahul@gmail.com",
-    "MobileNumber": 1234567898,
-    "JoiningDate": "17/01/2024",
-    "LocationId": 0,
+    "LocationId": 1,
     "JobId": 1,
-    "DeptId": 0,
-    "ManagerId": 0,
-    "ProjectId": 0
+    "DeptId": 1,
+    "ManagerId": 1,
+    "ProjectId": 1
   },
   {
     "EmployeeNumber": "TZ1013",
@@ -161,10 +147,10 @@
     "EmailId": "abhi@gmail.com",
     "MobileNumber": 1234567890,
     "JoiningDate": "13/03/2023",
-    "LocationId": 0,
-    "JobId": 0,
-    "DeptId": 1,
-    "ManagerId": 1,
-    "ProjectId": 2
+    "LocationId": 1,
+    "JobId": 1,
+    "DeptId": 2,
+    "ManagerId": 2,
+    "ProjectId": 3
   }
 ]

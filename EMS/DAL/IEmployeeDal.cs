@@ -7,16 +7,10 @@ namespace EmployeeManagement;
 
 public interface IEmployeeDal
 {
-    List<Employee> FetchData(EmployeeFilter? employeeFilterInput);
-
+    List<Employee> Filter(EmployeeFilter? employee);
     List<Employee> FetchData();
-
     bool Insert(List<Employee> data);
-
     bool Insert(Employee data);
-
-    bool Update(string employeeNumber, Employee employeeInput);
-
+    bool Update(string employeeNumber, Employee employee);
     bool Delete(string employeeNumber);
-
 }

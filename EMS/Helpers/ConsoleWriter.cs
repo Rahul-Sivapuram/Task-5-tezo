@@ -4,8 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace EmployeeManagement;
-
-public class ConsoleLogger : ILogger
+public class ConsoleWriter : ILogger
 {
     public void LogInfo(string message) => LogMessage(message);
 

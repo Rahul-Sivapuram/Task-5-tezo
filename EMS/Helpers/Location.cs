@@ -7,8 +7,8 @@ namespace EmployeeManagement;
 
 public enum Location
 {
-    Hyderabad = 0,
-    Mumbai = 1,
-    Delhi = 2,
-    Bangalore = 3
+    Hyderabad = 1,
+    Mumbai = 2,
+    Delhi = 3,
+    Bangalore = 4
 }

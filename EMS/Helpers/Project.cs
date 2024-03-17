@@ -7,7 +7,7 @@ namespace EmployeeManagement;
 
 public enum Project
 {
-    Amazon = 0,
-    Myntra = 1,
-    Cisco = 2
+    Amazon = 1,
+    Myntra = 2,
+    Cisco = 3
 }
