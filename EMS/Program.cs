@@ -263,6 +263,6 @@ public static class Program
 
     private static void Help()
     {
-        _consoleWriter.LogInfo(Constants.messages[6]);
+        _consoleWriter.LogInfo(Constants.OptionsMessage);
     }
 }
