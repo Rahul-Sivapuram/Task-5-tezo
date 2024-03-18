@@ -1,13 +1,13 @@
 
 Running The Application:
-//---------------------------------------------------------------------------
+
 You can run the application using the dotnet run command followed by various options:
 
 display: Display all employee details.
-command - dotnet run -- -o display
+- command - dotnet run -- -o display
 
 update: Update employee information.
-command - dotnet run -- -o update -i TZ101
+- command - dotnet run -- -o update -i TZ101
 
 delete: Delete an employee.
 command - dotnet run -- -o delete -i TZ101
