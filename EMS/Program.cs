@@ -22,7 +22,7 @@ public class Options
 public static class Program
 {
     private static IConfigurationRoot _configuration;
-    private static ILogger _consoleWriter;
+    private static ILogger _logger;
     private static IEmployeeDal _employeeDal;
     private static IEmployeeBal _employeeBal;
     private static readonly string _filePath = "";
@@ -36,10 +36,10 @@ public static class Program
     static Program()
     {
         _configuration = GetConfiguration();
-        _consoleWriter = new ConsoleWriter();
+        _logger = new ConsoleWriter();
         _filePath = _configuration["EmployeesJsonPath"];
-        _employeeDal = new EmployeeDal(_consoleWriter, _filePath);
-        _employeeBal = new EmployeeBal(_consoleWriter, _employeeDal);
+        _employeeDal = new EmployeeDal(_logger, _filePath);
+        _employeeBal = new EmployeeBal(_logger, _employeeDal);
     }
       public static void Main(string[] args)
     {
@@ -49,7 +49,7 @@ public static class Program
            if (options.Help)
            {
                var helpText = HelpText.AutoBuild(Parser.Default.ParseArguments<Options>(args));
-               _consoleWriter.LogError(helpText);
+               _logger.LogError(helpText);
                return;
            }
 
@@ -60,7 +60,7 @@ public static class Program
                    bool isAddSuccessful = _employeeBal.Add(employee);
                    if (isAddSuccessful)
                    {
-                       _consoleWriter.LogSuccess(string.Format(Constants.EmployeeAddedSuccessMessage, employee.EmployeeNumber));
+                       _logger.LogSuccess(string.Format(Constants.EmployeeAddedSuccessMessage, employee.EmployeeNumber));
                    }
                    break;
 
@@ -72,7 +72,7 @@ public static class Program
                        {
                            if (string.IsNullOrEmpty(options.Identifier) || item.EmployeeNumber == options.Identifier)
                            {
-                               _consoleWriter.LogInfo(string.Format(Constants.EmployeeDetailsTemplate,
+                               _logger.LogInfo(string.Format(Constants.EmployeeDetailsTemplate,
                                    item.EmployeeNumber, item.FirstName, item.LastName, item.Dob, item.EmailId,
                                    item.MobileNumber, item.JoiningDate, Enum.GetName(typeof(Location), item.LocationId),
                                    Enum.GetName(typeof(JobTitle), item.JobId), Enum.GetName(typeof(Department), item.DeptId),
@@ -82,7 +82,7 @@ public static class Program
                    }
                    else
                    {
-                       _consoleWriter.LogError(Constants.NoEmployeeFoundMessage);
+                       _logger.LogError(Constants.NoEmployeeFoundMessage);
                    }
                    break;
 
@@ -93,7 +93,7 @@ public static class Program
                    {
                        foreach (var item in filteredEmployeeData)
                        {
-                           _consoleWriter.LogInfo(string.Format(Constants.EmployeeDetailsTemplate,
+                           _logger.LogInfo(string.Format(Constants.EmployeeDetailsTemplate,
                             item.EmployeeNumber, item.FirstName, item.LastName, item.Dob, item.EmailId,
                             item.MobileNumber, item.JoiningDate, Enum.GetName(typeof(Location), item.LocationId), Enum.GetName(typeof(JobTitle), item.JobId),
                             Enum.GetName(typeof(Department), item.DeptId), Enum.GetName(typeof(Manager), item.ManagerId), Enum.GetName(typeof(Project), item.ProjectId)));
@@ -101,7 +101,7 @@ public static class Program
                    }
                    else
                    {
-                       _consoleWriter.LogError(Constants.NoEmployeeFoundMessage);
+                       _logger.LogError(Constants.NoEmployeeFoundMessage);
                    }
                    break;
 
@@ -109,11 +109,11 @@ public static class Program
                    bool res = _employeeBal.Delete(options.Identifier);
                    if (res)
                    {
-                       _consoleWriter.LogSuccess(Constants.EmployeeDeletedSuccessMessage);
+                       _logger.LogSuccess(Constants.EmployeeDeletedSuccessMessage);
                    }
                    else
                    {
-                       _consoleWriter.LogError(Constants.DeletionFailedMessage);
+                       _logger.LogError(Constants.DeletionFailedMessage);
                    }
                    break;
 
@@ -126,22 +126,22 @@ public static class Program
                    bool isUpdated = _employeeBal.Update(options.Identifier, employeeToUpdate);
                    if (isUpdated)
                    {
-                       _consoleWriter.LogSuccess(string.Format(Constants.EmployeeUpdatedSuccessMessage, options.Identifier));
+                       _logger.LogSuccess(string.Format(Constants.EmployeeUpdatedSuccessMessage, options.Identifier));
                    }
                    else
                    {
-                       _consoleWriter.LogSuccess(string.Format(Constants.NoEmployeeWithIdMessage, options.Identifier));
+                       _logger.LogSuccess(string.Format(Constants.NoEmployeeWithIdMessage, options.Identifier));
                    }
                    break;
 
                default:
-                   _consoleWriter.LogError(Constants.InvalidOperationMessage);
+                   _logger.LogError(Constants.InvalidOperationMessage);
                    break;
            }
        })
        .WithNotParsed(errors =>
        {
-           _consoleWriter.LogError(Constants.InvalidCommandLineArgsMessage);
+           _logger.LogError(Constants.InvalidCommandLineArgsMessage);
        });
     }
 
@@ -150,7 +150,7 @@ public static class Program
         string input;
         do
         {
-            _consoleWriter.LogInfo(prompt);
+            _logger.LogInfo(prompt);
             input = Console.ReadLine();
             if (string.IsNullOrWhiteSpace(input))
                 return null;
@@ -160,7 +160,7 @@ public static class Program
 
     private static int GetEnumValue<TEnum>(string prompt) where TEnum : struct, Enum
     {
-        _consoleWriter.LogInfo(prompt);
+        _logger.LogInfo(prompt);
         string input = Console.ReadLine();
         TEnum enumValue;
         if (Enum.TryParse(input, out enumValue))
@@ -169,7 +169,7 @@ public static class Program
         }
         else
         {
-            _consoleWriter.LogError($"Invalid input for {typeof(TEnum).Name}!");
+            _logger.LogError($"Invalid input for {typeof(TEnum).Name}!");
             return -1;
         }
     }
@@ -177,16 +177,16 @@ public static class Program
     private static Employee GetEmployeeInput()
     {
         Employee employee = new Employee();
-        _consoleWriter.LogInfo("Enter Employee Number: ");
+        _logger.LogInfo("Enter Employee Number: ");
         employee.EmployeeNumber = Console.ReadLine();
 
-        _consoleWriter.LogInfo("Enter First Name: ");
+        _logger.LogInfo("Enter First Name: ");
         employee.FirstName = Console.ReadLine();
 
-        _consoleWriter.LogInfo("Enter Last Name: ");
+        _logger.LogInfo("Enter Last Name: ");
         employee.LastName = Console.ReadLine();
 
-        _consoleWriter.LogInfo("Enter Date Of Birth:(d/m/y)");
+        _logger.LogInfo("Enter Date Of Birth:(d/m/y)");
         employee.Dob = Console.ReadLine();
 
         string emailId = ReadValidInput("Enter Email ID: ", s => string.IsNullOrWhiteSpace(s) || Regex.IsMatch(s, @"^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$"));
@@ -199,7 +199,7 @@ public static class Program
 
         employee.MobileNumber = mobileNumber ?? 0;
 
-        _consoleWriter.LogInfo("Enter Joining Date: ");
+        _logger.LogInfo("Enter Joining Date: ");
         employee.JoiningDate = Console.ReadLine();
 
         employee.LocationId = GetEnumValue<Location>("Enter Location: ");
@@ -213,9 +213,9 @@ public static class Program
     private static EmployeeFilter GetEmployeeFilterInput()
     {
         EmployeeFilter employeeFilterObject = new EmployeeFilter();
-        _consoleWriter.LogInfo("Enter an alphabet:");
+        _logger.LogInfo("Enter an alphabet:");
         employeeFilterObject.EmployeeName = Console.ReadLine();
-        _consoleWriter.LogInfo("Enter Location:");
+        _logger.LogInfo("Enter Location:");
         string locationInput = Console.ReadLine();
         if (Enum.TryParse(locationInput, true, out Location location))
         {
@@ -226,7 +226,7 @@ public static class Program
             employeeFilterObject.Location = null;
         }
 
-        _consoleWriter.LogInfo("Enter JobTitle:");
+        _logger.LogInfo("Enter JobTitle:");
         string jobTitleInput = Console.ReadLine();
         if (Enum.TryParse(jobTitleInput, true, out JobTitle jobTitle))
         {
@@ -237,7 +237,7 @@ public static class Program
             employeeFilterObject.JobTitle = null;
         }
 
-        _consoleWriter.LogInfo("Enter Manager:");
+        _logger.LogInfo("Enter Manager:");
         string managerInput = Console.ReadLine();
         if (Enum.TryParse(managerInput, true, out Manager manager))
         {
@@ -248,7 +248,7 @@ public static class Program
             employeeFilterObject.Manager = null;
         }
 
-        _consoleWriter.LogInfo("Enter Project:");
+        _logger.LogInfo("Enter Project:");
         string projectInput = Console.ReadLine();
         if (Enum.TryParse(projectInput, true, out Project project))
         {
@@ -263,6 +263,6 @@ public static class Program
 
     private static void Help()
     {
-        _consoleWriter.LogInfo(Constants.OptionsMessage);
+        _logger.LogInfo(Constants.OptionsMessage);
     }
 }

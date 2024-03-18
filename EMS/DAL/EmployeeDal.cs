@@ -8,11 +8,11 @@ namespace EmployeeManagement;
 
 public class EmployeeDal : IEmployeeDal
 {
-    private readonly ILogger _consoleWriter;
+    private readonly ILogger _logger;
     private readonly string _filePath;
     public EmployeeDal(ILogger loggerObject, string path)
     {
-        _consoleWriter = loggerObject;
+        _logger = loggerObject;
         _filePath = path;
     }
     public List<Employee> Filter(EmployeeFilter? employee)

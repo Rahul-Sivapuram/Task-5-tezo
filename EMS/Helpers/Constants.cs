@@ -20,7 +20,6 @@ public static class Constants
         "EmpDepartment: {9}\n" +
         "EmpManager: {10}\n" +
         "EmpProject: {11}\n";
-   
     public static readonly string EmployeeDeletedSuccessMessage = "Employee deleted successfully.";
     public static readonly string DeletionFailedMessage = "Deletion Failed.";
     public static readonly string EmployeeNotFoundMessage = "Employee not found.";
@@ -31,16 +30,4 @@ public static class Constants
     public static readonly string EmployeeAddedSuccessMessage = "{0} added successfully.";
     public static readonly string InvalidOperationMessage = "Invalid operation. Valid operations are: add, display, update, delete, filter, help.";
     public static readonly string InvalidCommandLineArgsMessage = "Invalid command-line arguments.";
-
 }
-
-
-/*
-dotnet run -- -o display  
- dotnet run -- -o update -i TZ101
-dotnet run -- -o delete -i TZ101
-dotnet run -- -o display -i TZ101
-dotnet run -- -o help
-dotnet run -- -o add
-
-*/
