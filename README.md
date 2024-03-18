@@ -1,6 +1,6 @@
 # Introduction
-    1.This is a Employee Management System console application.
-    2.It supports all CRUD operations for employees.
+- This is a Employee Management System console application.
+- It supports all CRUD operations for employees.
 
 # Prerequisites
 Before running this application, ensure that you have the following prerequisites:
