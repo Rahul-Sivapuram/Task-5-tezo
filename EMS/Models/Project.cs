@@ -5,9 +5,8 @@ using System.Threading.Tasks;
 
 namespace EmployeeManagement;
 
-public enum Project
+public class Project
 {
-    Amazon = 1,
-    Myntra = 2,
-    Cisco = 3
+    public int? Id { set; get; }
+    public string? Name { set; get; }
 }

@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace EmployeeManagement;
 
-public static class Constants
+public class Constants
 {
-    public static readonly string EmployeeDetailsTemplate =
+    public const string EmployeeDetailsTemplate =
         "EmpNumber: {0}\n" +
         "EmpFirstName: {1}\n" +
         "EmpLastName: {2}\n" +
@@ -20,14 +20,17 @@ public static class Constants
         "EmpDepartment: {9}\n" +
         "EmpManager: {10}\n" +
         "EmpProject: {11}\n";
-    public static readonly string EmployeeDeletedSuccessMessage = "Employee deleted successfully.";
-    public static readonly string DeletionFailedMessage = "Deletion Failed.";
-    public static readonly string EmployeeNotFoundMessage = "Employee not found.";
-    public static readonly string NoEmployeeWithIdMessage = "No employee found with EmployeeID: {0}";
-    public static readonly string EmployeeUpdatedSuccessMessage = "{0} updated successfully.";
-    public static readonly string NoEmployeeFoundMessage = "No Employee Found!";
-    public static readonly string OptionsMessage = "Options\n" + "add \t - \t To add an employee\n" + "display - \t To display all employee details\n" + "search \t - \t To display a particular employee data\n" + "delete \t - \t To delete an employee based on given employeenumber\n" + "update \t - \t To update employee details based on given employeenumber\n";
-    public static readonly string EmployeeAddedSuccessMessage = "{0} added successfully.";
-    public static readonly string InvalidOperationMessage = "Invalid operation. Valid operations are: add, display, update, delete, filter, help.";
-    public static readonly string InvalidCommandLineArgsMessage = "Invalid command-line arguments.";
+    public const string EmployeeDeletedSuccessMessage = "Employee deleted successfully.";
+    public const string DeletionFailedMessage = "Deletion Failed.";
+    public const string EmployeeNotFoundMessage = "Employee not found.";
+    public const string NoEmployeeWithIdMessage = "No employee found with EmployeeID: {0}";
+    public const string EmployeeUpdatedSuccessMessage = "{0} updated successfully.";
+    public const string NoEmployeeFoundMessage = "No Employee Found!";
+    public const string OptionsMessage = "Options\n" + "add \t - \t To add an employee\n" + "display - \t To display all employee details\n" + "search \t - \t To display a particular employee data\n" + "delete \t - \t To delete an employee based on given employeenumber\n" + "update \t - \t To update employee details based on given employeenumber\n";
+    public const string EmployeeAddedSuccessMessage = "{0} added successfully.";
+    public const string InvalidOperationMessage = "Invalid operation. Valid operations are: add, display, update, delete, filter, help.";
+    public const string InvalidCommandLineArgsMessage = "Invalid command-line arguments.";
+    public const string RolesTemplate="RoleId : {0}\n"+"Role : {1}\n"+"Department : {2}\n";
+
+    public const string InsertionFailed = "Insertion Failed";
 }

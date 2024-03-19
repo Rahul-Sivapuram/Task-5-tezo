@@ -8,7 +8,7 @@ namespace EmployeeManagement;
 public interface IEmployeeDal
 {
     List<Employee> Filter(EmployeeFilter? employee);
-    List<Employee> FetchData();
+    List<T> FetchData<T>(string filePath);
     bool Insert(List<Employee> data);
     bool Insert(Employee data);
     bool Update(string employeeNumber, Employee employee);

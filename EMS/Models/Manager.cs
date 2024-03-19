@@ -5,10 +5,8 @@ using System.Threading.Tasks;
 
 namespace EmployeeManagement;
 
-public enum Department
+public class Manager
 {
-    ProductEngineering = 1,
-    UIUX = 2,
-    IT = 3
+    public int? Id { set; get; }
+    public string? Name { set; get; }
 }
-

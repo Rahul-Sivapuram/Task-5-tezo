@@ -26,6 +26,15 @@ public static class Program
     private static IEmployeeDal _employeeDal;
     private static IEmployeeBal _employeeBal;
     private static readonly string _filePath = "";
+    private static readonly string _jobTitleJsonPath = "";
+    private static readonly string _locationJsonPath = "";
+    private static readonly string _managerJsonPath = "";
+    private static readonly string _projectJsonPath = "";
+    private static readonly string _departmentJsonPath = "";
+    private static IRoleDal _roleDal;
+    private static IRoleBal _roleBal;
+    private static IDropDownBal _dropDownBal;
+    private static IDropDownDal _dropDownDal;
     private static IConfigurationRoot GetConfiguration()
     {
         return new ConfigurationBuilder()
@@ -38,10 +47,19 @@ public static class Program
         _configuration = GetConfiguration();
         _logger = new ConsoleWriter();
         _filePath = _configuration["EmployeesJsonPath"];
+        _jobTitleJsonPath = _configuration["JobTitleJsonPath"];
+        _projectJsonPath = _configuration["ProjectJsonPath"];
+        _locationJsonPath = _configuration["LocationJsonPath"];
+        _departmentJsonPath = _configuration["DepartmentJsonPath"];
+        _managerJsonPath = _configuration["ManagerJsonPath"];
         _employeeDal = new EmployeeDal(_logger, _filePath);
         _employeeBal = new EmployeeBal(_logger, _employeeDal);
+        _roleDal = new RoleDal();
+        _roleBal = new RoleBal(_roleDal, _jobTitleJsonPath, _locationJsonPath, _managerJsonPath, _projectJsonPath, _departmentJsonPath);
+        _dropDownDal = new DropDownDal();
+        _dropDownBal = new DropDownBal(_dropDownDal);
     }
-      public static void Main(string[] args)
+    public static void Main(string[] args)
     {
         Parser.Default.ParseArguments<Options>(args)
        .WithParsed(options =>
@@ -72,11 +90,7 @@ public static class Program
                        {
                            if (string.IsNullOrEmpty(options.Identifier) || item.EmployeeNumber == options.Identifier)
                            {
-                               _logger.LogInfo(string.Format(Constants.EmployeeDetailsTemplate,
-                                   item.EmployeeNumber, item.FirstName, item.LastName, item.Dob, item.EmailId,
-                                   item.MobileNumber, item.JoiningDate, Enum.GetName(typeof(Location), item.LocationId),
-                                   Enum.GetName(typeof(JobTitle), item.JobId), Enum.GetName(typeof(Department), item.DeptId),
-                                   Enum.GetName(typeof(Manager), item.ManagerId), Enum.GetName(typeof(Project), item.ProjectId)));
+                               _logger.LogInfo(string.Format(Constants.EmployeeDetailsTemplate, item.EmployeeNumber, item.FirstName, item.LastName, item.Dob, item.EmailId, item.MobileNumber, item.JoiningDate, _dropDownBal.GetNameById<Location>(_locationJsonPath, (int)item.LocationId), _dropDownBal.GetNameById<Project>(_jobTitleJsonPath, (int)item.JobId), _dropDownBal.GetNameById<Department>(_departmentJsonPath, (int)item.DeptId), _dropDownBal.GetNameById<Manager>(_managerJsonPath, (int)item.ManagerId), _dropDownBal.GetNameById<Project>(_projectJsonPath, (int)item.ProjectId)));
                            }
                        }
                    }
@@ -93,10 +107,7 @@ public static class Program
                    {
                        foreach (var item in filteredEmployeeData)
                        {
-                           _logger.LogInfo(string.Format(Constants.EmployeeDetailsTemplate,
-                            item.EmployeeNumber, item.FirstName, item.LastName, item.Dob, item.EmailId,
-                            item.MobileNumber, item.JoiningDate, Enum.GetName(typeof(Location), item.LocationId), Enum.GetName(typeof(JobTitle), item.JobId),
-                            Enum.GetName(typeof(Department), item.DeptId), Enum.GetName(typeof(Manager), item.ManagerId), Enum.GetName(typeof(Project), item.ProjectId)));
+                           _logger.LogInfo(string.Format(Constants.EmployeeDetailsTemplate, item.EmployeeNumber, item.FirstName, item.LastName, item.Dob, item.EmailId, item.MobileNumber, item.JoiningDate, _dropDownBal.GetNameById<Location>(_locationJsonPath, (int)item.LocationId), _dropDownBal.GetNameById<Project>(_jobTitleJsonPath, (int)item.JobId), _dropDownBal.GetNameById<Department>(_departmentJsonPath, (int)item.DeptId), _dropDownBal.GetNameById<Manager>(_managerJsonPath, (int)item.ManagerId), _dropDownBal.GetNameById<Project>(_projectJsonPath, (int)item.ProjectId)));
                        }
                    }
                    else
@@ -134,6 +145,30 @@ public static class Program
                    }
                    break;
 
+               case "add-role":
+                   Role role = new Role();
+                   List<string> roleDetails = GetRoleInput();
+                   role.Name = roleDetails[0];
+                   role.DepartmentId = _roleBal.GetDepartmentId(roleDetails[1], _departmentJsonPath);
+                   bool sample = _roleBal.Insert(role);
+                   if (sample)
+                   {
+                       _logger.LogSuccess(String.Format(Constants.EmployeeAddedSuccessMessage, roleDetails[0]));
+                   }
+                   else
+                   {
+                       _logger.LogError(Constants.InsertionFailed);
+                   }
+                   break;
+
+               case "display-roles":
+                   List<Role> roles = _roleBal.GetRoles();
+                   foreach (var item in roles)
+                   {
+                       _logger.LogInfo(string.Format(Constants.RolesTemplate, item.Id, item.Name, _dropDownBal.GetNameById<Department>(_departmentJsonPath, (int)item.DepartmentId)));
+                   }
+                   break;
+
                default:
                    _logger.LogError(Constants.InvalidOperationMessage);
                    break;
@@ -158,20 +193,28 @@ public static class Program
         return input;
     }
 
-    private static int GetEnumValue<TEnum>(string prompt) where TEnum : struct, Enum
+    private static List<string> GetRoleInput()
     {
-        _logger.LogInfo(prompt);
-        string input = Console.ReadLine();
-        TEnum enumValue;
-        if (Enum.TryParse(input, out enumValue))
+        string roleName, departmentName;
+        _logger.LogInfo("Enter RoleName: ");
+        roleName = Console.ReadLine();
+
+        _logger.LogInfo("Enter Department: ");
+        departmentName = Console.ReadLine();
+        return [roleName.ToUpper(), departmentName.ToUpper()];
+    }
+
+    private static int GetValidOption<T>(string promptMessage, string jsonPath)
+    {
+        PrintOptions(_dropDownBal.GetOptions<T>(jsonPath));
+        Console.WriteLine(promptMessage);
+        string userInput = Console.ReadLine();
+        int itemId = _dropDownBal.GetItemId<T>(userInput.ToUpper(), jsonPath);
+        if (itemId == -1)
         {
-            return Convert.ToInt32(enumValue);
+            Console.WriteLine("Invalid option selected");
         }
-        else
-        {
-            _logger.LogError($"Invalid input for {typeof(TEnum).Name}!");
-            return -1;
-        }
+        return itemId;
     }
 
     private static Employee GetEmployeeInput()
@@ -202,11 +245,12 @@ public static class Program
         _logger.LogInfo("Enter Joining Date: ");
         employee.JoiningDate = Console.ReadLine();
 
-        employee.LocationId = GetEnumValue<Location>("Enter Location: ");
-        employee.JobId = GetEnumValue<JobTitle>("Enter Job Title: ");
-        employee.DeptId = GetEnumValue<Department>("Enter Department: ");
-        employee.ManagerId = GetEnumValue<Manager>("Enter Assigned Manager: ");
-        employee.ProjectId = GetEnumValue<Project>("Enter Assigned Project: ");
+        employee.LocationId = GetValidOption<Location>("Enter location:", _locationJsonPath);
+        employee.JobId = GetValidOption<Role>("Enter job title:", _jobTitleJsonPath);
+        employee.DeptId = GetValidOption<Department>("Enter department name:", _departmentJsonPath);
+        employee.ManagerId = GetValidOption<Manager>("Enter manager name:", _managerJsonPath);
+        employee.ProjectId = GetValidOption<Project>("Enter project name:", _projectJsonPath);
+
         return employee;
     }
 
@@ -217,52 +261,37 @@ public static class Program
         employeeFilterObject.EmployeeName = Console.ReadLine();
         _logger.LogInfo("Enter Location:");
         string locationInput = Console.ReadLine();
-        if (Enum.TryParse(locationInput, true, out Location location))
-        {
-            employeeFilterObject.Location = location;
-        }
-        else
-        {
-            employeeFilterObject.Location = null;
-        }
+        employeeFilterObject.Location = _dropDownBal.GetItemByName<Location>(_locationJsonPath, locationInput.ToUpper());
 
         _logger.LogInfo("Enter JobTitle:");
         string jobTitleInput = Console.ReadLine();
-        if (Enum.TryParse(jobTitleInput, true, out JobTitle jobTitle))
-        {
-            employeeFilterObject.JobTitle = jobTitle;
-        }
-        else
-        {
-            employeeFilterObject.JobTitle = null;
-        }
+        employeeFilterObject.JobTitle = _dropDownBal.GetItemByName<Role>(_jobTitleJsonPath, jobTitleInput.ToUpper());
 
         _logger.LogInfo("Enter Manager:");
         string managerInput = Console.ReadLine();
-        if (Enum.TryParse(managerInput, true, out Manager manager))
-        {
-            employeeFilterObject.Manager = manager;
-        }
-        else
-        {
-            employeeFilterObject.Manager = null;
-        }
+        employeeFilterObject.Manager = _dropDownBal.GetItemByName<Manager>(_managerJsonPath, managerInput.ToUpper());
 
         _logger.LogInfo("Enter Project:");
         string projectInput = Console.ReadLine();
-        if (Enum.TryParse(projectInput, true, out Project project))
-        {
-            employeeFilterObject.Project = project;
-        }
-        else
-        {
-            employeeFilterObject.Project = null;
-        }
+        employeeFilterObject.Project = _dropDownBal.GetItemByName<Project>(_projectJsonPath, projectInput.ToUpper());
+
         return employeeFilterObject;
     }
 
     private static void Help()
     {
         _logger.LogInfo(Constants.OptionsMessage);
+    }
+
+    private static void PrintOptions<T>(IEnumerable<T> dataList)
+    {
+        var nameProperty = typeof(T).GetProperty("Name");
+
+        Console.WriteLine("\nOptions:");
+
+        foreach (var item in dataList)
+        {
+            Console.WriteLine(nameProperty.GetValue(item) + "");
+        }
     }
 }

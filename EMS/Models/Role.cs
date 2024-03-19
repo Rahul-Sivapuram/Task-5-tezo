@@ -5,10 +5,9 @@ using System.Threading.Tasks;
 
 namespace EmployeeManagement;
 
-public enum Location
+public class Role
 {
-    Hyderabad = 1,
-    Mumbai = 2,
-    Delhi = 3,
-    Bangalore = 4
+    public int? Id { set; get; }
+    public string? Name { set; get; }
+    public int? DepartmentId { set; get; }
 }

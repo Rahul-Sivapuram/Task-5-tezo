@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Reflection;
 
 namespace EmployeeManagement;
 
@@ -39,7 +40,7 @@ public class EmployeeBal : IEmployeeBal
 
     public List<Employee> Display(string employeeNumber)
     {
-        List<Employee> employeeData = _employeeDal.FetchData();
+        List<Employee> employeeData = _employeeDal.FetchData<Employee>("employeedata.json");
         if (employeeNumber == null)
         {
             return employeeData;
@@ -57,4 +58,3 @@ public class EmployeeBal : IEmployeeBal
         return employeeData;
     }
 }
-

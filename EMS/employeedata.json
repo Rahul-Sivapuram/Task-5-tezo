@@ -152,5 +152,33 @@
     "DeptId": 2,
     "ManagerId": 2,
     "ProjectId": 3
+  },
+  {
+    "EmployeeNumber": "TZ1019",
+    "FirstName": "rambo",
+    "LastName": "r",
+    "Dob": "12/03/2024",
+    "EmailId": "rambo@gmail.com",
+    "MobileNumber": 1234567890,
+    "JoiningDate": "12/02/2002",
+    "LocationId": 3,
+    "JobId": 1,
+    "DeptId": 2,
+    "ManagerId": 1,
+    "ProjectId": 3
+  },
+  {
+    "EmployeeNumber": "TZ1014",
+    "FirstName": "vamshi",
+    "LastName": "v",
+    "Dob": "23/04/2001",
+    "EmailId": "vamshi@gmail.com",
+    "MobileNumber": 1234567890,
+    "JoiningDate": "12/03/2023",
+    "LocationId": 3,
+    "JobId": 1,
+    "DeptId": 2,
+    "ManagerId": 2,
+    "ProjectId": 3
   }
 ]

@@ -5,9 +5,8 @@ using System.Threading.Tasks;
 
 namespace EmployeeManagement;
 
-public enum Manager
+public interface IRoleDal
 {
-    HasnuZama = 1,
-    Ram = 2,
-    Suresh = 3
+    List<T> FetchRoleData<T>(string _filePath);
+    bool Insert<T>(T role,string filePath);
 }

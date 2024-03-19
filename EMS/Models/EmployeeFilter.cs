@@ -8,7 +8,7 @@ namespace EmployeeManagement;
 public class EmployeeFilter
 {
     public Location? Location { get; set; }
-    public JobTitle? JobTitle { get; set; }
+    public Role? JobTitle { get; set; }
     public Department? Department { get; set; }
     public Manager? Manager { get; set; }
     public Project? Project { get; set; }

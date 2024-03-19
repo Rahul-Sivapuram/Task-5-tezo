@@ -5,9 +5,8 @@ using System.Threading.Tasks;
 
 namespace EmployeeManagement;
 
-public enum JobTitle
+public class Location
 {
-    UIUXDesigner = 1,
-    FullStackDeveloper = 2,
-    BackendDeveloper = 3,
+    public int? Id { set; get; }
+    public string? Name { set; get; }
 }

@@ -17,37 +17,37 @@ public class EmployeeDal : IEmployeeDal
     }
     public List<Employee> Filter(EmployeeFilter? employee)
     {
-        List<Employee> employeeData = FetchData();
+        List<Employee> employeeData = FetchData<Employee>(_filePath);
         var filteredEmployees = employeeData.Where(emp => IsEmployeeFiltered(emp, employee)).ToList();
         return filteredEmployees;
     }
 
-    public List<Employee> FetchData()
+    public List<T> FetchData<T>(string filePath)
     {
-        string jsonData = File.ReadAllText(_filePath);
-        List<Employee> employeeData = DeserializeEmployees(jsonData);
+        string jsonData = File.ReadAllText(filePath);
+        List<T> employeeData = JsonHelper.Deserialize<List<T>>(jsonData);
         return employeeData;
     }
 
     public bool Insert(Employee employee)
     {
-        List<Employee> employeeData = FetchData();
+        List<Employee> employeeData = FetchData<Employee>(_filePath);
         employeeData.Add(employee);
-        string jsonUpdatedData = SerializeEmployees(employeeData);
-        Save(_filePath, jsonUpdatedData);
+        string jsonUpdatedData = JsonHelper.Serialize<Employee>(employeeData);
+        JsonHelper.Save(_filePath, jsonUpdatedData);
         return true;
     }
 
     public bool Insert(List<Employee> employeeData)
     {
-        string jsonUpdatedData = SerializeEmployees(employeeData);
-        Save(_filePath, jsonUpdatedData);
+        string jsonUpdatedData = JsonHelper.Serialize<Employee>(employeeData);
+        JsonHelper.Save(_filePath, jsonUpdatedData);
         return true;
     }
 
     public bool Update(string employeeNumber, Employee employee)
     {
-        List<Employee> employeeData = FetchData();
+        List<Employee> employeeData = FetchData<Employee>(_filePath);
         bool found = false;
         foreach (var item in employeeData)
         {
@@ -92,7 +92,7 @@ public class EmployeeDal : IEmployeeDal
 
     public bool Delete(string employeeNumber)
     {
-        List<Employee> employeeData = FetchData();
+        List<Employee> employeeData = FetchData<Employee>(_filePath);
         var employeeToRemove = employeeData.FirstOrDefault(e => e.EmployeeNumber == employeeNumber);
         if (employeeToRemove != null)
         {
@@ -106,33 +106,14 @@ public class EmployeeDal : IEmployeeDal
         }
     }
 
-    private List<Employee> DeserializeEmployees(string jsonData)
-    {
-        return JsonSerializer.Deserialize<List<Employee>>(jsonData);
-    }
-
-    private string SerializeEmployees(List<Employee> data)
-    {
-        return JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true });
-    }
-
-    private bool IsEmployeeFiltered(Employee emp, EmployeeFilter employee)
+     private bool IsEmployeeFiltered(Employee emp, EmployeeFilter employee)
     {
         bool filterEmployeeName = string.IsNullOrEmpty(employee.EmployeeName) ||
                                    emp.FirstName.StartsWith(employee.EmployeeName);
-        bool filterLocation = !employee.Location.HasValue ||
-                              emp.LocationId == Convert.ToInt32(employee.Location);
-        bool filterJobTitle = !employee.JobTitle.HasValue ||
-                              emp.JobId == Convert.ToInt32(employee.JobTitle);
-        bool filterManager = !employee.Manager.HasValue ||
-                             emp.ManagerId == Convert.ToInt32(employee.Manager);
-        bool filterProject = !employee.Project.HasValue ||
-                             emp.ProjectId == Convert.ToInt32(employee.Project);
+        bool filterLocation = employee.Location == null || emp.LocationId == employee.Location.Id;;
+        bool filterJobTitle = employee.JobTitle == null || emp.JobId == employee.JobTitle.Id;
+        bool filterManager = employee.Manager == null || emp.ManagerId == employee.Manager.Id;;
+        bool filterProject = employee.Project == null || emp.ProjectId == employee.Project.Id;
         return filterEmployeeName && filterLocation && filterJobTitle && filterManager && filterProject;
-    }
-
-    private void Save(string filePath, string content)
-    {
-        File.WriteAllText(filePath, content);
     }
 }
