@@ -10,11 +10,9 @@ namespace EmployeeManagement;
 public class EmployeeBal : IEmployeeBal
 {
     private readonly IEmployeeDal _employeeDal;
-    private readonly ILogger _logger;
-    public EmployeeBal(ILogger loggerObject, IEmployeeDal employeeDalObject)
+    public EmployeeBal(IEmployeeDal employeeDalObject)
     {
         _employeeDal = employeeDalObject;
-        _logger = loggerObject;
     }
 
     public bool Add(Employee employee)

@@ -52,8 +52,8 @@ public static class Program
         _locationJsonPath = _configuration["LocationJsonPath"];
         _departmentJsonPath = _configuration["DepartmentJsonPath"];
         _managerJsonPath = _configuration["ManagerJsonPath"];
-        _employeeDal = new EmployeeDal(_logger, _filePath);
-        _employeeBal = new EmployeeBal(_logger, _employeeDal);
+        _employeeDal = new EmployeeDal(_filePath);
+        _employeeBal = new EmployeeBal(_employeeDal);
         _roleDal = new RoleDal();
         _roleBal = new RoleBal(_roleDal, _jobTitleJsonPath, _locationJsonPath, _managerJsonPath, _projectJsonPath, _departmentJsonPath);
         _dropDownDal = new DropDownDal();

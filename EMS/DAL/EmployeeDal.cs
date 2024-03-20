@@ -8,20 +8,11 @@ namespace EmployeeManagement;
 
 public class EmployeeDal : IEmployeeDal
 {
-    private readonly ILogger _logger;
     private readonly string _filePath;
-    public EmployeeDal(ILogger loggerObject, string path)
+    public EmployeeDal(string path)
     {
-        _logger = loggerObject;
         _filePath = path;
     }
-    public List<Employee> Filter(EmployeeFilter? employee)
-    {
-        List<Employee> employeeData = FetchData<Employee>(_filePath);
-        var filteredEmployees = employeeData.Where(emp => IsEmployeeFiltered(emp, employee)).ToList();
-        return filteredEmployees;
-    }
-
     public List<T> FetchData<T>(string filePath)
     {
         string jsonData = File.ReadAllText(filePath);
@@ -106,13 +97,19 @@ public class EmployeeDal : IEmployeeDal
         }
     }
 
-     private bool IsEmployeeFiltered(Employee emp, EmployeeFilter employee)
+    public List<Employee> Filter(EmployeeFilter? employee)
     {
-        bool filterEmployeeName = string.IsNullOrEmpty(employee.EmployeeName) ||
-                                   emp.FirstName.StartsWith(employee.EmployeeName);
-        bool filterLocation = employee.Location == null || emp.LocationId == employee.Location.Id;;
+        List<Employee> employeeData = FetchData<Employee>(_filePath);
+        var filteredEmployees = employeeData.Where(emp => IsEmployeeFiltered(emp, employee)).ToList();
+        return filteredEmployees;
+    }
+    
+    private bool IsEmployeeFiltered(Employee emp, EmployeeFilter employee)
+    {
+        bool filterEmployeeName = string.IsNullOrEmpty(employee.EmployeeName) || emp.FirstName.StartsWith(employee.EmployeeName);
+        bool filterLocation = employee.Location == null || emp.LocationId == employee.Location.Id;
         bool filterJobTitle = employee.JobTitle == null || emp.JobId == employee.JobTitle.Id;
-        bool filterManager = employee.Manager == null || emp.ManagerId == employee.Manager.Id;;
+        bool filterManager = employee.Manager == null || emp.ManagerId == employee.Manager.Id;
         bool filterProject = employee.Project == null || emp.ProjectId == employee.Project.Id;
         return filterEmployeeName && filterLocation && filterJobTitle && filterManager && filterProject;
     }
