@@ -207,11 +207,12 @@ public static class Program
     private static int GetValidOption<T>(string promptMessage, string jsonPath)
     {
         PrintOptions(_dropDownBal.GetOptions<T>(jsonPath));
+        _logger.LogInfo(promptMessage);
         string userInput = Console.ReadLine();
         int itemId = _dropDownBal.GetItemId<T>(userInput.ToUpper(), jsonPath);
         if (itemId == -1)
         {
-            _logger.LogInfo(Constants.InvalidOptionSelected);
+            _logger.LogError(Constants.InvalidOptionSelected);
         }
         return itemId;
     }
@@ -245,8 +246,29 @@ public static class Program
         employee.JoiningDate = Console.ReadLine();
 
         employee.LocationId = GetValidOption<Location>("Enter location:", _locationJsonPath);
-        employee.JobId = GetValidOption<Role>("Enter job title:", _jobTitleJsonPath);
         employee.DeptId = GetValidOption<Department>("Enter department name:", _departmentJsonPath);
+
+        List<string> rolesList = _roleBal.GetRoleNamesForDepartment((int)employee.DeptId);
+        int roleId = -1;
+        if (rolesList != null)
+        {
+            foreach (string role in rolesList)
+            {
+                _logger.LogInfo(role);
+            }
+            _logger.LogInfo("Enter rolename:");
+            string roleName = Console.ReadLine().ToUpper();
+            roleId = _dropDownBal.GetItemId<Role>(roleName, _jobTitleJsonPath);
+            if (roleId == -1)
+            {
+                _logger.LogError(Constants.InvalidOptionSelected);
+            }
+            employee.JobId =roleId;
+        }
+        else{
+            _logger.LogError("No roles");
+        }
+
         employee.ManagerId = GetValidOption<Manager>("Enter manager name:", _managerJsonPath);
         employee.ProjectId = GetValidOption<Project>("Enter project name:", _projectJsonPath);
         return employee;

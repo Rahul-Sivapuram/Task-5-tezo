@@ -45,6 +45,14 @@ public class RoleBal : IRoleBal
         return departmentList.FirstOrDefault(item => item.Name == departmentName)?.Id ?? -1;
     }
     
+    public List<string> GetRoleNamesForDepartment(int Id)
+    {
+        List<Role> roles = _roleDal.FetchRoleData<Role>(rolesPath);
+        return roles
+            .Where(role => role.DepartmentId == Id)
+            .Select(role => role.Name)
+            .ToList();
+    }
     public List<Role> GetRoles()
     {
         List<Role> roles = _roleDal.FetchRoleData<Role>(rolesPath);

@@ -171,13 +171,13 @@
     "EmployeeNumber": "TZ1014",
     "FirstName": "vamshi",
     "LastName": "v",
-    "Dob": "23/04/2001",
+    "Dob": "12/03/2002",
     "EmailId": "vamshi@gmail.com",
     "MobileNumber": 1234567890,
-    "JoiningDate": "12/03/2023",
+    "JoiningDate": "12/02/2024",
     "LocationId": 3,
-    "JobId": 1,
-    "DeptId": 2,
+    "JobId": 7,
+    "DeptId": 3,
     "ManagerId": 2,
     "ProjectId": 3
   }

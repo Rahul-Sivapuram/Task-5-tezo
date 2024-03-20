@@ -10,4 +10,5 @@ public interface IRoleBal
     bool Insert(Role role);
     List<Role> GetRoles();
     int GetDepartmentId(string departmentName, string departmentsPath);
+    List<string> GetRoleNamesForDepartment(int Id);
 }
