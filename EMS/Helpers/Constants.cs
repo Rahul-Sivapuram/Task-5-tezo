@@ -32,5 +32,6 @@ public class Constants
     public const string InvalidCommandLineArgsMessage = "Invalid command-line arguments.";
     public const string RolesTemplate="RoleId : {0}\n"+"Role : {1}\n"+"Department : {2}\n";
 
+    public const string InvalidOptionSelected = "Invalid option selected";
     public const string InsertionFailed = "Insertion Failed";
 }
