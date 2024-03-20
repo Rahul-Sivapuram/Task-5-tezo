@@ -207,12 +207,11 @@ public static class Program
     private static int GetValidOption<T>(string promptMessage, string jsonPath)
     {
         PrintOptions(_dropDownBal.GetOptions<T>(jsonPath));
-        Console.WriteLine(promptMessage);
         string userInput = Console.ReadLine();
         int itemId = _dropDownBal.GetItemId<T>(userInput.ToUpper(), jsonPath);
         if (itemId == -1)
         {
-            Console.WriteLine("Invalid option selected");
+            _logger.LogInfo(Constants.InvalidOptionSelected);
         }
         return itemId;
     }
@@ -250,7 +249,6 @@ public static class Program
         employee.DeptId = GetValidOption<Department>("Enter department name:", _departmentJsonPath);
         employee.ManagerId = GetValidOption<Manager>("Enter manager name:", _managerJsonPath);
         employee.ProjectId = GetValidOption<Project>("Enter project name:", _projectJsonPath);
-
         return employee;
     }
 
@@ -291,7 +289,7 @@ public static class Program
 
         foreach (var item in dataList)
         {
-            Console.WriteLine(nameProperty.GetValue(item) + "");
+            _logger.LogInfo(nameProperty.GetValue(item) + "");
         }
     }
 }
