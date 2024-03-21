@@ -9,7 +9,7 @@ namespace EmployeeManagement;
 
 public class Options
 {
-    [Option('o', "operation", Required = true, HelpText = "Operation to perform: add, display, update, delete, filter, help")]
+    [Option('o', "operation", Required = false, HelpText = "Operation to perform: add, display, update, delete, filter, help")]
     public string Operation { get; set; }
 
     [Option('i', "identifier", Required = false, HelpText = "Identifier for operation (e.g., employee ID)")]
@@ -22,19 +22,89 @@ public class Options
 public static class Program
 {
     private static IConfigurationRoot _configuration;
-    private static ILogger _logger;
+    private static IWriter _console;
     private static IEmployeeDal _employeeDal;
     private static IEmployeeBal _employeeBal;
-    private static readonly string _filePath = "";
-    private static readonly string _jobTitleJsonPath = "";
-    private static readonly string _locationJsonPath = "";
-    private static readonly string _managerJsonPath = "";
-    private static readonly string _projectJsonPath = "";
-    private static readonly string _departmentJsonPath = "";
     private static IRoleDal _roleDal;
     private static IRoleBal _roleBal;
+    private static string _basePath;
     private static IDropDownBal _dropDownBal;
     private static IDropDownDal _dropDownDal;
+    private static JsonHelper _jsonHelper;
+
+    static Program()
+    {
+        _configuration = GetConfiguration();
+        _console = new ConsoleWriter();
+        _basePath = _configuration["BasePath"];
+        _jsonHelper = new JsonHelper();
+        _dropDownDal = new DropDownDal(Path.Combine(_basePath, _configuration["JobTitleJsonPath"]), Path.Combine(_basePath, _configuration["LocationJsonPath"]), Path.Combine(_basePath, _configuration["ManagerJsonPath"]), Path.Combine(_basePath, _configuration["ProjectJsonPath"]), Path.Combine(_basePath, _configuration["DepartmentJsonPath"]), _jsonHelper);
+        _dropDownBal = new DropDownBal(_dropDownDal);
+        _employeeDal = new EmployeeDal(Path.Combine(_basePath, _configuration["EmployeesJsonPath"]), _jsonHelper, _dropDownBal, Path.Combine(_basePath, _configuration["JobTitleJsonPath"]), Path.Combine(_basePath, _configuration["LocationJsonPath"]), Path.Combine(_basePath, _configuration["ManagerJsonPath"]), Path.Combine(_basePath, _configuration["ProjectJsonPath"]), Path.Combine(_basePath, _configuration["DepartmentJsonPath"]));
+        _employeeBal = new EmployeeBal(_employeeDal, _dropDownBal);
+        _roleDal = new RoleDal(Path.Combine(_basePath, _configuration["JobTitleJsonPath"]), _jsonHelper);
+        _roleBal = new RoleBal(_roleDal);
+    }
+    public static void Main(string[] args)
+    {
+        Parser.Default.ParseArguments<Options>(args)
+        .WithParsed(options =>
+        {
+            if (options.Help)
+            {
+                Help();
+                return;
+            }
+            switch (options.Operation.ToLower())
+            {
+                case "add":
+                    HandleAddOperation();
+                    break;
+
+                case "display":
+                    HandleDisplayOperation(options);
+                    break;
+
+                case "filter":
+                    HandleFilterOperation();
+                    break;
+
+                case "delete":
+                    HandleDeleteOperation(options);
+                    break;
+
+                case "update":
+                    HandleUpdateOperation(options);
+                    break;
+
+                case "add-role":
+                    HandleAddRoleOperation();
+                    break;
+
+                case "display-roles":
+                    HandleDisplayRolesOperation();
+                    break;
+
+                default:
+                    _console.ShowError(Constants.InvalidOperationMessage);
+                    break;
+            }
+        })
+        .WithNotParsed(errors =>
+        {
+            _console.ShowError(Constants.InvalidCommandLineArgsMessage);
+        });
+    }
+
+    private static void HandleDisplayRolesOperation()
+    {
+        List<Role> roles = _roleBal.Get();
+        foreach (var item in roles)
+        {
+            _console.ShowInfo(string.Format(Constants.RolesTemplate, item.Id, item.Name, _dropDownBal.GetNameById(Path.Combine(_basePath, _configuration["DepartmentJsonPath"]), (int)item.DepartmentId)));
+        }
+    }
+
     private static IConfigurationRoot GetConfiguration()
     {
         return new ConfigurationBuilder()
@@ -42,276 +112,206 @@ public static class Program
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
             .Build();
     }
-    static Program()
+
+    private static void HandleAddOperation()
     {
-        _configuration = GetConfiguration();
-        _logger = new ConsoleWriter();
-        _filePath = _configuration["EmployeesJsonPath"];
-        _jobTitleJsonPath = _configuration["JobTitleJsonPath"];
-        _projectJsonPath = _configuration["ProjectJsonPath"];
-        _locationJsonPath = _configuration["LocationJsonPath"];
-        _departmentJsonPath = _configuration["DepartmentJsonPath"];
-        _managerJsonPath = _configuration["ManagerJsonPath"];
-        _employeeDal = new EmployeeDal(_filePath);
-        _employeeBal = new EmployeeBal(_employeeDal);
-        _roleDal = new RoleDal();
-        _roleBal = new RoleBal(_roleDal, _jobTitleJsonPath, _locationJsonPath, _managerJsonPath, _projectJsonPath, _departmentJsonPath);
-        _dropDownDal = new DropDownDal();
-        _dropDownBal = new DropDownBal(_dropDownDal);
-    }
-    public static void Main(string[] args)
-    {
-        Parser.Default.ParseArguments<Options>(args)
-       .WithParsed(options =>
-       {
-           if (options.Help)
-           {
-               var helpText = HelpText.AutoBuild(Parser.Default.ParseArguments<Options>(args));
-               _logger.LogError(helpText);
-               return;
-           }
-
-           switch (options.Operation.ToLower())
-           {
-               case "add":
-                   Employee employee = GetEmployeeInput();
-                   bool isAddSuccessful = _employeeBal.Add(employee);
-                   if (isAddSuccessful)
-                   {
-                       _logger.LogSuccess(string.Format(Constants.EmployeeAddedSuccessMessage, employee.EmployeeNumber));
-                   }
-                   break;
-
-               case "display":
-                   List<Employee> employees = _employeeBal.Display(options.Identifier);
-                   if (employees.Count > 0)
-                   {
-                       foreach (var item in employees)
-                       {
-                           if (string.IsNullOrEmpty(options.Identifier) || item.EmployeeNumber == options.Identifier)
-                           {
-                               _logger.LogInfo(string.Format(Constants.EmployeeDetailsTemplate, item.EmployeeNumber, item.FirstName, item.LastName, item.Dob, item.EmailId, item.MobileNumber, item.JoiningDate, _dropDownBal.GetNameById<Location>(_locationJsonPath, (int)item.LocationId), _dropDownBal.GetNameById<Project>(_jobTitleJsonPath, (int)item.JobId), _dropDownBal.GetNameById<Department>(_departmentJsonPath, (int)item.DeptId), _dropDownBal.GetNameById<Manager>(_managerJsonPath, (int)item.ManagerId), _dropDownBal.GetNameById<Project>(_projectJsonPath, (int)item.ProjectId)));
-                           }
-                       }
-                   }
-                   else
-                   {
-                       _logger.LogError(Constants.NoEmployeeFoundMessage);
-                   }
-                   break;
-
-               case "filter":
-                   EmployeeFilter filterInput = GetEmployeeFilterInput();
-                   List<Employee> filteredEmployeeData = _employeeBal.Filter(filterInput);
-                   if (filteredEmployeeData.Count > 0)
-                   {
-                       foreach (var item in filteredEmployeeData)
-                       {
-                           _logger.LogInfo(string.Format(Constants.EmployeeDetailsTemplate, item.EmployeeNumber, item.FirstName, item.LastName, item.Dob, item.EmailId, item.MobileNumber, item.JoiningDate, _dropDownBal.GetNameById<Location>(_locationJsonPath, (int)item.LocationId), _dropDownBal.GetNameById<Project>(_jobTitleJsonPath, (int)item.JobId), _dropDownBal.GetNameById<Department>(_departmentJsonPath, (int)item.DeptId), _dropDownBal.GetNameById<Manager>(_managerJsonPath, (int)item.ManagerId), _dropDownBal.GetNameById<Project>(_projectJsonPath, (int)item.ProjectId)));
-                       }
-                   }
-                   else
-                   {
-                       _logger.LogError(Constants.NoEmployeeFoundMessage);
-                   }
-                   break;
-
-               case "delete":
-                   bool res = _employeeBal.Delete(options.Identifier);
-                   if (res)
-                   {
-                       _logger.LogSuccess(Constants.EmployeeDeletedSuccessMessage);
-                   }
-                   else
-                   {
-                       _logger.LogError(Constants.DeletionFailedMessage);
-                   }
-                   break;
-
-               case "help":
-                   Help();
-                   break;
-
-               case "update":
-                   Employee employeeToUpdate = GetEmployeeInput();
-                   bool isUpdated = _employeeBal.Update(options.Identifier, employeeToUpdate);
-                   if (isUpdated)
-                   {
-                       _logger.LogSuccess(string.Format(Constants.EmployeeUpdatedSuccessMessage, options.Identifier));
-                   }
-                   else
-                   {
-                       _logger.LogSuccess(string.Format(Constants.NoEmployeeWithIdMessage, options.Identifier));
-                   }
-                   break;
-
-               case "add-role":
-                   Role role = new Role();
-                   List<string> roleDetails = GetRoleInput();
-                   role.Name = roleDetails[0];
-                   role.DepartmentId = _roleBal.GetDepartmentId(roleDetails[1], _departmentJsonPath);
-                   bool sample = _roleBal.Insert(role);
-                   if (sample)
-                   {
-                       _logger.LogSuccess(String.Format(Constants.EmployeeAddedSuccessMessage, roleDetails[0]));
-                   }
-                   else
-                   {
-                       _logger.LogError(Constants.InsertionFailed);
-                   }
-                   break;
-
-               case "display-roles":
-                   List<Role> roles = _roleBal.GetRoles();
-                   foreach (var item in roles)
-                   {
-                       _logger.LogInfo(string.Format(Constants.RolesTemplate, item.Id, item.Name, _dropDownBal.GetNameById<Department>(_departmentJsonPath, (int)item.DepartmentId)));
-                   }
-                   break;
-
-               default:
-                   _logger.LogError(Constants.InvalidOperationMessage);
-                   break;
-           }
-       })
-       .WithNotParsed(errors =>
-       {
-           _logger.LogError(Constants.InvalidCommandLineArgsMessage);
-       });
-    }
-
-    private static string ReadValidInput(string prompt, Func<string, bool> isValid)
-    {
-        string input;
-        do
+        Employee employee = GetEmployeeInput();
+        bool isAddSuccessful = _employeeBal.Add(employee);
+        if (isAddSuccessful)
         {
-            _logger.LogInfo(prompt);
-            input = Console.ReadLine();
-            if (string.IsNullOrWhiteSpace(input))
-                return null;
-        } while (!isValid(input));
-        return input;
+            _console.ShowSuccess(string.Format(Constants.EmployeeAddedSuccessMessage, employee.EmployeeNumber));
+        }
+        else
+        {
+            _console.ShowError(Constants.InsertionFailed);
+        }
+    }
+
+    private static void HandleDisplayOperation(Options options)
+    {
+        List<EmployeeDetail> employees = _employeeBal.Get(options.Identifier);
+        if (employees.Count > 0)
+        {
+            foreach (var item in employees)
+            {
+                if (string.IsNullOrEmpty(options.Identifier) || item.EmployeeNumber == options.Identifier)
+                {
+                    _console.ShowInfo(string.Format(Constants.EmployeeDetailsTemplate, item.EmployeeNumber, item.FirstName, item.LastName, item.Dob, item.EmailId, item.MobileNumber, item.JoiningDate, item.LocationName, item.DeptName, item.JobName, item.ManagerName, item.ProjectName));
+                }
+            }
+        }
+        else
+        {
+            _console.ShowError(Constants.NoEmployeeFoundMessage);
+        }
+    }
+
+    private static void HandleFilterOperation()
+    {
+        EmployeeFilter filterInput = GetEmployeeFilterInput();
+        List<EmployeeDetail> filteredEmployeeData = _employeeBal.Filter(filterInput);
+        if (filteredEmployeeData.Count > 0)
+        {
+            foreach (var item in filteredEmployeeData)
+            {
+                _console.ShowInfo(string.Format(Constants.EmployeeDetailsTemplate, item.EmployeeNumber, item.FirstName, item.LastName, item.Dob, item.EmailId, item.MobileNumber, item.JoiningDate, item.LocationName, item.DeptName, item.JobName, item.ManagerName, item.ProjectName));
+            }
+        }
+        else
+        {
+            _console.ShowError(Constants.NoEmployeeFoundMessage);
+        }
+    }
+
+    private static void HandleDeleteOperation(Options options)
+    {
+        bool res = _employeeBal.Delete(options.Identifier);
+        if (res)
+        {
+            _console.ShowSuccess(Constants.EmployeeDeletedSuccessMessage);
+        }
+        else
+        {
+            _console.ShowError(Constants.DeletionFailedMessage);
+        }
+    }
+
+    private static void HandleUpdateOperation(Options options)
+    {
+        Employee employeeToUpdate = GetEmployeeInput();
+        bool isUpdated = _employeeBal.Update(options.Identifier, employeeToUpdate);
+        if (isUpdated)
+        {
+            _console.ShowSuccess(string.Format(Constants.EmployeeUpdatedSuccessMessage, options.Identifier));
+        }
+        else
+        {
+            _console.ShowSuccess(string.Format(Constants.NoEmployeeWithIdMessage, options.Identifier));
+        }
+    }
+
+    private static void HandleAddRoleOperation()
+    {
+        Role role = new Role();
+        List<string> roleDetails = GetRoleInput();
+        role.Name = roleDetails[0];
+        role.DepartmentId = _dropDownBal.GetDepartmentId(roleDetails[1]);
+        bool sample = _roleBal.Insert(role);
+        if (sample)
+        {
+            _console.ShowSuccess(String.Format(Constants.EmployeeAddedSuccessMessage, roleDetails[0]));
+        }
+        else
+        {
+            _console.ShowError(Constants.InsertionFailed);
+        }
     }
 
     private static List<string> GetRoleInput()
     {
         string roleName, departmentName;
-        _logger.LogInfo("Enter RoleName: ");
+        _console.ShowInfo("Enter RoleName: ");
         roleName = Console.ReadLine();
 
-        _logger.LogInfo("Enter Department: ");
+        _console.ShowInfo("Enter Department: ");
         departmentName = Console.ReadLine();
         return [roleName.ToUpper(), departmentName.ToUpper()];
-    }
-
-    private static int GetValidOption<T>(string promptMessage, string jsonPath)
-    {
-        PrintOptions(_dropDownBal.GetOptions<T>(jsonPath));
-        _logger.LogInfo(promptMessage);
-        string userInput = Console.ReadLine();
-        int itemId = _dropDownBal.GetItemId<T>(userInput.ToUpper(), jsonPath);
-        if (itemId == -1)
-        {
-            _logger.LogError(Constants.InvalidOptionSelected);
-        }
-        return itemId;
     }
 
     private static Employee GetEmployeeInput()
     {
         Employee employee = new Employee();
-        _logger.LogInfo("Enter Employee Number: ");
-        employee.EmployeeNumber = Console.ReadLine();
+        employee.EmployeeNumber = ReadInput("Employee Number");
+        employee.FirstName = ReadInput("First Name");
+        employee.LastName = ReadInput("Last Name");
+        employee.Dob = ReadInput("Date Of Birth (d/m/y)");
 
-        _logger.LogInfo("Enter First Name: ");
-        employee.FirstName = Console.ReadLine();
+        employee.EmailId = ReadValidInput("Email ID", s => string.IsNullOrWhiteSpace(s) || Regex.IsMatch(s, @"^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$"));
 
-        _logger.LogInfo("Enter Last Name: ");
-        employee.LastName = Console.ReadLine();
+        long mobileNumber;
+        bool isValidMobile = long.TryParse(ReadValidInput("Mobile Number (10 digits)", s => string.IsNullOrWhiteSpace(s) || (long.TryParse(s, out mobileNumber) && s.Length == 10)), out mobileNumber);
+        employee.MobileNumber = isValidMobile ? mobileNumber : 0;
 
-        _logger.LogInfo("Enter Date Of Birth:(d/m/y)");
-        employee.Dob = Console.ReadLine();
+        employee.JoiningDate = ReadInput("Joining Date (d/m/y)");
 
-        string emailId = ReadValidInput("Enter Email ID: ", s => string.IsNullOrWhiteSpace(s) || Regex.IsMatch(s, @"^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$"));
-        employee.EmailId = emailId;
-
-        long? mobileNumber = null;
-        string mobileInput = ReadValidInput("Enter Mobile Number: ", s => string.IsNullOrWhiteSpace(s) || (long.TryParse(s, out var result) && s.Length == 10));
-        if (!string.IsNullOrWhiteSpace(mobileInput))
-            mobileNumber = long.Parse(mobileInput);
-
-        employee.MobileNumber = mobileNumber ?? 0;
-
-        _logger.LogInfo("Enter Joining Date: ");
-        employee.JoiningDate = Console.ReadLine();
-
-        employee.LocationId = GetValidOption<Location>("Enter location:", _locationJsonPath);
-        employee.DeptId = GetValidOption<Department>("Enter department name:", _departmentJsonPath);
+        employee.LocationId = _dropDownBal.GetLocationId(ReadInputWithOptions("Location", _configuration["LocationJsonPath"]));
+        employee.DeptId = _dropDownBal.GetDepartmentId(ReadInputWithOptions("Department", _configuration["DepartmentJsonPath"]));
 
         List<string> rolesList = _roleBal.GetRoleNamesForDepartment((int)employee.DeptId);
-        int roleId = -1;
-        if (rolesList != null)
+        if (rolesList.Count == 0)
         {
-            foreach (string role in rolesList)
-            {
-                _logger.LogInfo(role);
-            }
-            _logger.LogInfo("Enter rolename:");
-            string roleName = Console.ReadLine().ToUpper();
-            roleId = _dropDownBal.GetItemId<Role>(roleName, _jobTitleJsonPath);
-            if (roleId == -1)
-            {
-                _logger.LogError(Constants.InvalidOptionSelected);
-            }
-            employee.JobId =roleId;
+            _console.ShowError("This Department has no roles");
+            return null;
         }
-        else{
-            _logger.LogError("No roles");
-        }
+        string roleName = ReadInputWithOptions("Role", rolesList);
+        employee.JobId = _roleBal.GetRoleId(roleName);
 
-        employee.ManagerId = GetValidOption<Manager>("Enter manager name:", _managerJsonPath);
-        employee.ProjectId = GetValidOption<Project>("Enter project name:", _projectJsonPath);
+        employee.ManagerId = _dropDownBal.GetManagerId(ReadInputWithOptions("Manager", _configuration["ManagerJsonPath"]));
+        employee.ProjectId = _dropDownBal.GetProjectId(ReadInputWithOptions("Project", _configuration["ProjectJsonPath"]));
         return employee;
+    }
+
+    private static string ReadInput(string prompt)
+    {
+        _console.ShowInfo($"Enter {prompt}: ");
+        return Console.ReadLine();
+    }
+
+    private static string ReadValidInput(string prompt, Func<string, bool> validator)
+    {
+        string input;
+        do
+        {
+            input = ReadInput(prompt);
+            if (!validator(input))
+            {
+                _console.ShowError("Invalid input. Please try again.");
+            }
+        } while (!validator(input));
+
+        return input;
+    }
+
+    private static string ReadInputWithOptions(string prompt, string jsonPath)
+    {
+        PrintOptions(_dropDownBal.GetOptions(Path.Combine(_basePath, jsonPath)));
+        return ReadInput(prompt + " name");
+    }
+
+    private static void PrintOptions(List<DropDown> dataList)
+    {
+        Console.WriteLine("\nOptions:");
+        foreach (var item in dataList)
+        {
+            _console.ShowInfo(item.Name + "");
+        }
     }
 
     private static EmployeeFilter GetEmployeeFilterInput()
     {
         EmployeeFilter employeeFilterObject = new EmployeeFilter();
-        _logger.LogInfo("Enter an alphabet:");
+        _console.ShowInfo("Enter an alphabet:");
         employeeFilterObject.EmployeeName = Console.ReadLine();
-        _logger.LogInfo("Enter Location:");
+        _console.ShowInfo("Enter Location:");
         string locationInput = Console.ReadLine();
-        employeeFilterObject.Location = _dropDownBal.GetItemByName<Location>(_locationJsonPath, locationInput.ToUpper());
+        employeeFilterObject.Location = _dropDownBal.GetLocationByName(locationInput);
 
-        _logger.LogInfo("Enter JobTitle:");
+        _console.ShowInfo("Enter JobTitle:");
         string jobTitleInput = Console.ReadLine();
-        employeeFilterObject.JobTitle = _dropDownBal.GetItemByName<Role>(_jobTitleJsonPath, jobTitleInput.ToUpper());
+        employeeFilterObject.JobTitle = _roleBal.GetRoleByName(jobTitleInput);
 
-        _logger.LogInfo("Enter Manager:");
+        _console.ShowInfo("Enter Manager:");
         string managerInput = Console.ReadLine();
-        employeeFilterObject.Manager = _dropDownBal.GetItemByName<Manager>(_managerJsonPath, managerInput.ToUpper());
+        employeeFilterObject.Manager = _dropDownBal.GetManagerByName(managerInput);
 
-        _logger.LogInfo("Enter Project:");
+        _console.ShowInfo("Enter Project:");
         string projectInput = Console.ReadLine();
-        employeeFilterObject.Project = _dropDownBal.GetItemByName<Project>(_projectJsonPath, projectInput.ToUpper());
-
+        employeeFilterObject.Project = _dropDownBal.GetProjectByName(projectInput);
         return employeeFilterObject;
     }
 
     private static void Help()
     {
-        _logger.LogInfo(Constants.OptionsMessage);
-    }
-
-    private static void PrintOptions<T>(IEnumerable<T> dataList)
-    {
-        var nameProperty = typeof(T).GetProperty("Name");
-
-        Console.WriteLine("\nOptions:");
-
-        foreach (var item in dataList)
-        {
-            _logger.LogInfo(nameProperty.GetValue(item) + "");
-        }
+        _console.ShowInfo(Constants.OptionsMessage);
     }
 }

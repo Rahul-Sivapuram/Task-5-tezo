@@ -10,9 +10,11 @@ namespace EmployeeManagement;
 public class EmployeeBal : IEmployeeBal
 {
     private readonly IEmployeeDal _employeeDal;
-    public EmployeeBal(IEmployeeDal employeeDalObject)
+    private readonly IDropDownBal _dropDownBal;
+    public EmployeeBal(IEmployeeDal employeeDalObject, IDropDownBal dropDownBalObject)
     {
         _employeeDal = employeeDalObject;
+        _dropDownBal = dropDownBalObject;
     }
 
     public bool Add(Employee employee)
@@ -31,27 +33,21 @@ public class EmployeeBal : IEmployeeBal
         return res;
     }
 
-    public List<Employee> Filter(EmployeeFilter employee)
+    public List<EmployeeDetail> Filter(EmployeeFilter employee)
     {
         return _employeeDal.Filter(employee);
     }
 
-    public List<Employee> Display(string employeeNumber)
+    public List<EmployeeDetail> Get(string employeeNumber)
     {
-        List<Employee> employeeData = _employeeDal.FetchData<Employee>("employeedata.json");
+        List<EmployeeDetail> employeeData = _employeeDal.GetAllDetails();
         if (employeeNumber == null)
         {
             return employeeData;
         }
         else
         {
-            foreach (Employee employee in employeeData)
-            {
-                if (employee.EmployeeNumber == employeeNumber)
-                {
-                    return new List<Employee>() { employee };
-                }
-            }
+            return employeeData.Where(e => e.EmployeeNumber == employeeNumber).ToList();
         }
         return employeeData;
     }

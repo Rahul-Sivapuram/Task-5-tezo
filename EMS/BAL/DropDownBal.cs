@@ -14,79 +14,82 @@ public class DropDownBal : IDropDownBal
     {
         _dropDownDal = dropDownDalObject;
     }
-    public int GetItemId<T>(string inputName, string filePath)
+
+    public int GetLocationId(string locationName)
     {
-        List<T> items = _dropDownDal.FetchData<T>(filePath);
-        PropertyInfo nameProperty = typeof(T).GetProperty("Name");
-        PropertyInfo idProperty = typeof(T).GetProperty("Id");
+        List<DropDown> items = _dropDownDal.GetLocations();
+        return GetId(items, locationName);
+    }
 
-        if (nameProperty == null || idProperty == null)
-        {
-            throw new InvalidOperationException("Type T does not have 'Name' or 'Id' property.");
+    public int GetManagerId(string managerName)
+    {
+        List<DropDown> items = _dropDownDal.GetManagers();
+        return GetId(items, managerName);
+    }
+
+    public int GetProjectId(string projectName)
+    {
+        List<DropDown> items = _dropDownDal.GetProjects();
+        return GetId(items, projectName);
+    }
+
+    public int GetDepartmentId(string departmentName)
+    {
+        List<DropDown> departmentList = _dropDownDal.GetDepartments();
+        int ans= GetId(departmentList,departmentName);
+        if(ans!=-1){
+            return ans;
         }
-
-        T item = items.FirstOrDefault(i =>
-        {
-            object nameValue = nameProperty.GetValue(i);
-            return nameValue != null && nameValue.ToString().Equals(inputName, StringComparison.OrdinalIgnoreCase);
-        });
-
-        if (item != null)
-        {
-            return (int)idProperty.GetValue(item);
-        }
-        else
-        {
+        else {
             return -1;
         }
     }
 
-    public T GetItemByName<T>(string filePath, string userInput) where T : class
+    public DropDown GetLocationByName(string userInput)
     {
-        List<T> items = _dropDownDal.FetchData<T>(filePath);
-        PropertyInfo nameProperty = typeof(T).GetProperty("Name");
-        if (nameProperty == null)
-        {
-            throw new InvalidOperationException("Type T does not have a 'Name' property.");
-        }
-
-        T item = items.FirstOrDefault(item => userInput.Equals(nameProperty.GetValue(item)?.ToString(), StringComparison.OrdinalIgnoreCase));
-        if (item != null)
-        {
-            return item;
-        }
-        else
-        {
-            return null;
-        }
+        List<DropDown> data = _dropDownDal.GetLocations();
+        return GetItemByName(data, userInput);
     }
 
-    public string GetNameById<T>(string filePath, int id)
+    public DropDown GetDepartmentByName(string userInput)
     {
-        List<T> items = _dropDownDal.FetchData<T>(filePath);
-        string ans = null;
-        var idProperty = typeof(T).GetProperty("Id");
-        var nameProperty = typeof(T).GetProperty("Name");
-        if (idProperty == null || nameProperty == null)
-        {
-            throw new InvalidOperationException("Type T does not have 'Id' or 'Name' property.");
-        }
-        foreach (var i in items)
-        {
-            var itemId = (int)idProperty.GetValue(i);
-
-            if (itemId == id)
-            {
-                ans = (string)nameProperty.GetValue(i);
-                break;
-            }
-        }
-        return ans;
+        List<DropDown> data = _dropDownDal.GetDepartments();
+        return GetItemByName(data, userInput);
     }
 
-    public List<T> GetOptions<T>(string filePath)
+    public DropDown GetManagerByName(string userInput)
     {
-        List<T> dataList = _dropDownDal.FetchData<T>(filePath);
+        List<DropDown> data = _dropDownDal.GetManagers();
+        return GetItemByName(data, userInput);
+    }
+
+    public DropDown GetProjectByName(string userInput)
+    {
+        List<DropDown> data = _dropDownDal.GetProjects();
+        return GetItemByName(data, userInput);
+    }
+
+    private int GetId(List<DropDown> items, string input)
+    {
+        var item = items.FirstOrDefault(i => string.Equals(i.Name, input.ToUpper(), StringComparison.OrdinalIgnoreCase));
+        return item?.Id ?? -1;
+    }
+
+    private DropDown GetItemByName(List<DropDown> data, string userInput)
+    {
+        DropDown item = data.FirstOrDefault(item => userInput.ToUpper().Equals(item.Name, StringComparison.OrdinalIgnoreCase));
+        return item;
+    }
+
+    public string GetNameById(string filePath, int id)
+    {
+        var item = _dropDownDal.GetDropDownItems(filePath).FirstOrDefault(item => item.Id == id);
+        return item?.Name;
+    }
+    
+    public List<DropDown> GetOptions(string filePath)
+    {
+        List<DropDown> dataList = _dropDownDal.GetDropDownItems(filePath);
         return dataList;
     }
 }

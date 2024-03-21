@@ -4,21 +4,21 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace EmployeeManagement;
-public class ConsoleWriter : ILogger
+public class ConsoleWriter : IWriter
 {
-    public void LogInfo(string message) => LogMessage(message);
+    public void ShowInfo(string message) => ShowMessage(message);
 
-    public void LogSuccess(string message)
+    public void ShowSuccess(string message)
     {
-        LogMessage(message, ConsoleColor.Green);
+        ShowMessage(message, ConsoleColor.Green);
     }
 
-    public void LogError(string message)
+    public void ShowError(string message)
     {
-        LogMessage(message, ConsoleColor.Red);
+        ShowMessage(message, ConsoleColor.Red);
     }
 
-    private void LogMessage(string message, ConsoleColor color = ConsoleColor.White)
+    private void ShowMessage(string message, ConsoleColor color = ConsoleColor.White)
     {
         Console.ForegroundColor = color;
         Console.WriteLine(message);

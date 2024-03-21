@@ -10,6 +10,6 @@ public interface IEmployeeBal
     bool Add(Employee employee);
     bool Delete(string employeeNumber);
     bool Update(string employeeNumber, Employee employee);
-    List<Employee> Filter(EmployeeFilter employee);
-    List<Employee> Display(string? employeeNumber);
+    List<EmployeeDetail> Filter(EmployeeFilter employee);
+    List<EmployeeDetail> Get(string? employeeNumber);
 }

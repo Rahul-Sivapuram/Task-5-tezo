@@ -7,6 +7,6 @@ namespace EmployeeManagement;
 
 public interface IRoleDal
 {
-    List<T> FetchRoleData<T>(string _filePath);
-    bool Insert<T>(T role,string filePath);
+    List<Role> GetAll();
+    bool Insert(Role role);
 }

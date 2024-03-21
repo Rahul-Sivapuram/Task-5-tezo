@@ -6,8 +6,14 @@ namespace EmployeeManagement;
 
 public interface IDropDownBal
 {
-    int GetItemId<T>(string inputName, string filePath);
-    T GetItemByName<T>(string filePath, string userInput) where T : class;
-    string GetNameById<T>(string filePath, int id);
-    List<T> GetOptions<T>(string filePath);
+    int GetLocationId(string locationName);
+    int GetManagerId(string managerName);
+    int GetProjectId(string projectName);
+    int GetDepartmentId(string departmentName);
+    DropDown GetLocationByName(string userInput);
+    DropDown GetDepartmentByName(string userInput);
+    DropDown GetManagerByName(string userInput);
+    DropDown GetProjectByName(string userInput);
+    string GetNameById(string filePath, int id);
+    List<DropDown> GetOptions(string filePath);
 }

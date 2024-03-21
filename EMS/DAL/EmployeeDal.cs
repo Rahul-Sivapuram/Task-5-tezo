@@ -9,72 +9,105 @@ namespace EmployeeManagement;
 public class EmployeeDal : IEmployeeDal
 {
     private readonly string _filePath;
-    public EmployeeDal(string path)
+    private readonly JsonHelper _jsonHelper;
+    private readonly IDropDownBal _dropDownBal;
+    private readonly string rolesPath, locationsPath, managersPath, projectsPath, departmentsPath;
+    public EmployeeDal(string path, JsonHelper jsonHelperObject, IDropDownBal dropDownBalObject, string jobTitleJsonPath, string locationJsonPath, string managerJsonPath, string projectJsonPath, string departmentJsonPath)
     {
         _filePath = path;
+        _jsonHelper = jsonHelperObject;
+        _dropDownBal = dropDownBalObject;
+        rolesPath = jobTitleJsonPath;
+        locationsPath = locationJsonPath;
+        managersPath = managerJsonPath;
+        projectsPath = projectJsonPath;
+        departmentsPath = departmentJsonPath;
     }
-    public List<T> FetchData<T>(string filePath)
+
+    public List<Employee> GetAll()
     {
-        string jsonData = File.ReadAllText(filePath);
-        List<T> employeeData = JsonHelper.Deserialize<List<T>>(jsonData);
+        string jsonData = File.ReadAllText(_filePath);
+        List<Employee> employeeData = _jsonHelper.Deserialize<List<Employee>>(jsonData);
         return employeeData;
+    }
+
+    public List<EmployeeDetail> GetAllDetails()
+    {
+        List<Employee> employeeData = GetAll();
+        List<EmployeeDetail> employeeDetailsList = new List<EmployeeDetail>();
+        foreach (var employee in employeeData)
+        {
+            EmployeeDetail employeeDetail = new EmployeeDetail
+            {
+                EmployeeNumber = employee.EmployeeNumber,
+                FirstName = employee.FirstName,
+                LastName = employee.LastName,
+                Dob = employee.Dob,
+                EmailId = employee.EmailId,
+                MobileNumber = employee.MobileNumber,
+                JoiningDate = employee.JoiningDate,
+                LocationName = _dropDownBal.GetNameById(locationsPath, (int)employee.LocationId),
+                JobName = _dropDownBal.GetNameById(rolesPath, (int)employee.JobId),
+                DeptName = _dropDownBal.GetNameById(departmentsPath, (int)employee.DeptId),
+                ManagerName = _dropDownBal.GetNameById(managersPath, (int)employee.ManagerId),
+                ProjectName = _dropDownBal.GetNameById(projectsPath, (int)employee.ProjectId)
+            };
+            employeeDetailsList.Add(employeeDetail);
+        }
+        return employeeDetailsList;
     }
 
     public bool Insert(Employee employee)
     {
-        List<Employee> employeeData = FetchData<Employee>(_filePath);
+        List<Employee> employeeData = GetAll();
         employeeData.Add(employee);
-        string jsonUpdatedData = JsonHelper.Serialize<Employee>(employeeData);
-        JsonHelper.Save(_filePath, jsonUpdatedData);
+        _jsonHelper.Save(_filePath, employeeData);
         return true;
     }
 
     public bool Insert(List<Employee> employeeData)
     {
-        string jsonUpdatedData = JsonHelper.Serialize<Employee>(employeeData);
-        JsonHelper.Save(_filePath, jsonUpdatedData);
+        _jsonHelper.Save(_filePath, employeeData);
         return true;
     }
 
     public bool Update(string employeeNumber, Employee employee)
     {
-        List<Employee> employeeData = FetchData<Employee>(_filePath);
-        bool found = false;
-        foreach (var item in employeeData)
+        List<Employee> employeeData = GetAll();
+        Employee existingEmployee = employeeData.FirstOrDefault(e => e.EmployeeNumber == employeeNumber);
+        bool found = existingEmployee != null;
+        if (found)
         {
-            if (item.EmployeeNumber == employeeNumber)
+            existingEmployee.EmployeeNumber ??= employee.EmployeeNumber;
+            existingEmployee.FirstName ??= employee.FirstName;
+            existingEmployee.LastName ??= employee.LastName;
+            existingEmployee.Dob ??= employee.Dob;
+            existingEmployee.EmailId ??= employee.EmailId;
+            if (employee.MobileNumber != 0)
             {
-                found = true;
-                item.EmployeeNumber ??= employee.EmployeeNumber;
-                item.FirstName ??= employee.FirstName;
-                item.LastName ??= employee.LastName;
-                item.Dob ??= employee.Dob;
-                item.EmailId ??= employee.EmailId;
-                if (employee.MobileNumber != 0)
-                {
-                    item.MobileNumber = employee.MobileNumber;
-                }
-                item.JoiningDate ??= employee.JoiningDate;
-                if (employee.LocationId != -1)
-                {
-                    item.LocationId = employee.LocationId;
-                }
-                if (employee.JobId != -1)
-                {
-                    item.JobId = employee.JobId;
-                }
-                if (employee.DeptId != -1)
-                {
-                    item.DeptId = employee.DeptId;
-                }
-                if (employee.ManagerId != -1)
-                {
-                    item.ManagerId = employee.ManagerId;
-                }
-                if (employee.ProjectId != -1)
-                {
-                    item.ProjectId = employee.ProjectId;
-                }
+                existingEmployee.MobileNumber = employee.MobileNumber;
+            }
+            existingEmployee.JoiningDate ??= employee.JoiningDate;
+            if (employee.LocationId != -1)
+            {
+                existingEmployee.LocationId = employee.LocationId;
+            }
+            if (employee.JobId != -1)
+            {
+                existingEmployee.JobId = employee.JobId;
+            }
+            if (employee.DeptId != -1)
+            {
+                existingEmployee.DeptId = employee.DeptId;
+            }
+
+            if (employee.ManagerId != -1)
+            {
+                existingEmployee.ManagerId = employee.ManagerId;
+            }
+            if (employee.ProjectId != -1)
+            {
+                existingEmployee.ProjectId = employee.ProjectId;
             }
         }
         bool res = Insert(employeeData);
@@ -83,7 +116,7 @@ public class EmployeeDal : IEmployeeDal
 
     public bool Delete(string employeeNumber)
     {
-        List<Employee> employeeData = FetchData<Employee>(_filePath);
+        List<Employee> employeeData = GetAll();
         var employeeToRemove = employeeData.FirstOrDefault(e => e.EmployeeNumber == employeeNumber);
         if (employeeToRemove != null)
         {
@@ -97,20 +130,20 @@ public class EmployeeDal : IEmployeeDal
         }
     }
 
-    public List<Employee> Filter(EmployeeFilter? employee)
+    public List<EmployeeDetail> Filter(EmployeeFilter? employee)
     {
-        List<Employee> employeeData = FetchData<Employee>(_filePath);
+        List<EmployeeDetail> employeeData = GetAllDetails();
         var filteredEmployees = employeeData.Where(emp => IsEmployeeFiltered(emp, employee)).ToList();
         return filteredEmployees;
     }
-    
-    private bool IsEmployeeFiltered(Employee emp, EmployeeFilter employee)
+
+    private bool IsEmployeeFiltered(EmployeeDetail emp, EmployeeFilter employee)
     {
         bool filterEmployeeName = string.IsNullOrEmpty(employee.EmployeeName) || emp.FirstName.StartsWith(employee.EmployeeName);
-        bool filterLocation = employee.Location == null || emp.LocationId == employee.Location.Id;
-        bool filterJobTitle = employee.JobTitle == null || emp.JobId == employee.JobTitle.Id;
-        bool filterManager = employee.Manager == null || emp.ManagerId == employee.Manager.Id;
-        bool filterProject = employee.Project == null || emp.ProjectId == employee.Project.Id;
+        bool filterLocation = employee.Location == null || emp.LocationName == employee.Location.Name;
+        bool filterJobTitle = employee.JobTitle == null || emp.JobName == employee.JobTitle.Name;
+        bool filterManager = employee.Manager == null || emp.ManagerName == employee.Manager.Name;
+        bool filterProject = employee.Project == null || emp.ProjectName == employee.Project.Name;
         return filterEmployeeName && filterLocation && filterJobTitle && filterManager && filterProject;
     }
 }

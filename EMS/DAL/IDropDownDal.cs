@@ -6,5 +6,10 @@ namespace EmployeeManagement;
 
 public interface IDropDownDal
 {
-    List<T> FetchData<T>(string filePath);
+    List<DropDown> GetLocations();
+    List<DropDown> GetDepartments();
+    List<DropDown> GetManagers();
+    List<DropDown> GetProjects();
+    bool Insert(DropDown item);
+    List<DropDown> GetDropDownItems(string filePath);
 }

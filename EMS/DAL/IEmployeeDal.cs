@@ -7,8 +7,9 @@ namespace EmployeeManagement;
 
 public interface IEmployeeDal
 {
-    List<Employee> Filter(EmployeeFilter? employee);
-    List<T> FetchData<T>(string filePath);
+    List<EmployeeDetail> Filter(EmployeeFilter? employee);
+    List<Employee> GetAll();
+    List<EmployeeDetail> GetAllDetails();
     bool Insert(List<Employee> data);
     bool Insert(Employee data);
     bool Update(string employeeNumber, Employee employee);

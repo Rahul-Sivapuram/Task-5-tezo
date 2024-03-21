@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace EmployeeManagement;
 
-public class Location
+public class DropDown
 {
     public int? Id { set; get; }
     public string? Name { set; get; }

@@ -11,22 +11,28 @@ Before running this application, ensure that you have the following prerequisite
 You can run the application using the dotnet run command followed by various options:
 
 display: Display all employee details.
-- `dotnet run -- -o display`
+- `EMS.exe run -- -o display`
 
 update: Update employee information.
-- `dotnet run -- -o update -i TZ101`
+- `EMS.exe run -- -o update -i TZ101`
 
 delete: Delete an employee.
-- `dotnet run -- -o delete -i TZ101`
+- `EMS.exe run -- -o delete -i TZ101`
 
 help: Display help information.
-- `dotnet run -- -o help`
+- `EMS.exe run -- -h help`
 
 add: Add a new employee.
-- `dotnet run -- -o add`
+- `EMS.exe run -- -o add`
 
 filter: Apply filters to employee data.
-- `dotnet run -- -o filter`
+- `EMS.exe run -- -o filter`
+
+add-role: Add a new role.
+- `EMS.exe run -- -o add-role`
+
+display-roles: To display all roles.
+- `EMS.exe run -- -o display-roles`
 
 Command Line Arguments.
 - -o: Specifies the operation to perform (display, update, delete, help, add, filter).

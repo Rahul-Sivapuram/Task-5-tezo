@@ -7,10 +7,10 @@ namespace EmployeeManagement;
 
 public class EmployeeFilter
 {
-    public Location? Location { get; set; }
+    public DropDown? Location { get; set; }
     public Role? JobTitle { get; set; }
-    public Department? Department { get; set; }
-    public Manager? Manager { get; set; }
-    public Project? Project { get; set; }
+    public DropDown? Department { get; set; }
+    public DropDown? Manager { get; set; }
+    public DropDown? Project { get; set; }
     public string? EmployeeName { get; set; }
 }

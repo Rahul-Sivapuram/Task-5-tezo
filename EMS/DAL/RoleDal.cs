@@ -2,22 +2,31 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
 namespace EmployeeManagement;
-public class RoleDal:IRoleDal
+
+public class RoleDal : IRoleDal
 {
-    public List<T> FetchRoleData<T>(string _filePath)
+    private readonly string _filePath;
+    private readonly JsonHelper _jsonHelper;
+    public RoleDal(string path,JsonHelper jsonHelperObject)
+    {   
+        _filePath = path;
+        _jsonHelper = jsonHelperObject;
+    }
+
+    public List<Role> GetAll()
     {
         string jsonData = File.ReadAllText(_filePath);
-        List<T> roles= JsonHelper.Deserialize<List<T>>(jsonData);
+        List<Role> roles = _jsonHelper.Deserialize<List<Role>>(jsonData);
         return roles;
     }
-    public bool Insert<T>(T role,string filePath)
+
+    public bool Insert(Role role)
     {
-        List<T> roles = FetchRoleData<T>(filePath);
+        List<Role> roles = GetAll();
         roles.Add(role);
-        string jsonUpdatedData = JsonHelper.Serialize<T>(roles);
-        JsonHelper.Save(filePath, jsonUpdatedData);
+        _jsonHelper.Save(_filePath, roles);
         return true;
     }
+
 }

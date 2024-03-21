@@ -4,20 +4,16 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Text.Json;
 namespace EmployeeManagement;
-public static class JsonHelper
+public class JsonHelper
 {
-    public static string Serialize<T>(List<T> data)
+    public void Save<T>(string filePath, T content)
     {
-        return JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true });
+        string serializedContent = JsonSerializer.Serialize(content, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(filePath, serializedContent);
     }
 
-    public static T Deserialize<T>(string jsonData)
+    public T Deserialize<T>(string jsonData)
     {
         return JsonSerializer.Deserialize<T>(jsonData);
-    }
-
-    public static void Save(string filePath, string content)
-    {
-        File.WriteAllText(filePath, content);
     }
 }

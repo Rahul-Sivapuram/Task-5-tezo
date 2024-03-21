@@ -33,5 +33,10 @@
     "Id": 7,
     "Name": "CUSTOMER SUPPORT",
     "DepartmentId": 3
+  },
+  {
+    "Id": 8,
+    "Name": "UX ARCHITECT",
+    "DepartmentId": 2
   }
 ]

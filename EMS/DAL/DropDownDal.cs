@@ -8,12 +8,51 @@ using System.Reflection;
 
 namespace EmployeeManagement;
 
-public class DropDownDal:IDropDownDal
+public class DropDownDal : IDropDownDal
 {
-    public List<T> FetchData<T>(string filePath)
+    private readonly string rolesPath, locationsPath, managersPath, projectsPath, departmentsPath;
+    private readonly JsonHelper _jsonHelper;
+    public DropDownDal(string jobTitleJsonPath, string locationJsonPath, string managerJsonPath, string projectJsonPath, string departmentJsonPath,JsonHelper jsonHelperObject)
+    {
+        rolesPath = jobTitleJsonPath;
+        locationsPath = locationJsonPath;
+        managersPath = managerJsonPath;
+        projectsPath = projectJsonPath;
+        departmentsPath = departmentJsonPath;
+        _jsonHelper = jsonHelperObject;
+    }
+    public List<DropDown> GetDropDownItems(string filePath)
     {
         string jsonData = File.ReadAllText(filePath);
-        List<T> data = JsonHelper.Deserialize<List<T>>(jsonData);
+        List<DropDown> data = _jsonHelper.Deserialize<List<DropDown>>(jsonData);
         return data;
+    }
+
+    public List<DropDown> GetLocations()
+    {
+        return GetDropDownItems(locationsPath);
+    }
+
+    public List<DropDown> GetDepartments()
+    {
+        return GetDropDownItems(departmentsPath);
+    }
+
+    public List<DropDown> GetManagers()
+    {
+        return GetDropDownItems(managersPath);
+    }
+
+    public List<DropDown> GetProjects()
+    {
+        return GetDropDownItems(projectsPath);
+    }
+
+    public bool Insert(DropDown item)
+    {
+        List<DropDown> data = GetDepartments();
+        data.Add(item);
+        _jsonHelper.Save(departmentsPath, data);
+        return true;
     }
 }
