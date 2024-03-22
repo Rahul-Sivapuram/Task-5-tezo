@@ -9,15 +9,9 @@ public class ConsoleLogger : ILogger
 {
     public void LogInfo(string message) => LogMessage(message);
 
-    public void LogSuccess(string message)
-    {
-        LogMessage(message, ConsoleColor.Green);
-    }
+    public void LogSuccess(string message) => LogMessage(message, ConsoleColor.Green);
 
-    public void LogError(string message)
-    {
-        LogMessage(message, ConsoleColor.Red);
-    }
+    public void LogError(string message) => LogMessage(message, ConsoleColor.Red);
 
     private void LogMessage(string message, ConsoleColor color = ConsoleColor.White)
     {

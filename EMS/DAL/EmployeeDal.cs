@@ -100,7 +100,6 @@ public class EmployeeDal : IEmployeeDal
             {
                 existingEmployee.DeptId = employee.DeptId;
             }
-
             if (employee.ManagerId != -1)
             {
                 existingEmployee.ManagerId = employee.ManagerId;

@@ -21,6 +21,7 @@ public class DropDownDal : IDropDownDal
         departmentsPath = departmentJsonPath;
         _jsonHelper = jsonHelperObject;
     }
+    
     public List<DropDown> GetDropDownItems(string filePath)
     {
         string jsonData = File.ReadAllText(filePath);

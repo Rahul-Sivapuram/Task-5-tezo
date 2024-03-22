@@ -8,15 +8,9 @@ public class ConsoleWriter : IWriter
 {
     public void ShowInfo(string message) => ShowMessage(message);
 
-    public void ShowSuccess(string message)
-    {
-        ShowMessage(message, ConsoleColor.Green);
-    }
+    public void ShowSuccess(string message) => ShowMessage(message, ConsoleColor.Green);
 
-    public void ShowError(string message)
-    {
-        ShowMessage(message, ConsoleColor.Red);
-    }
+    public void ShowError(string message) => ShowMessage(message, ConsoleColor.Red);
 
     private void ShowMessage(string message, ConsoleColor color = ConsoleColor.White)
     {
