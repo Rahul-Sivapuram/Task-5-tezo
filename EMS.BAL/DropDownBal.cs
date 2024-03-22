@@ -5,7 +5,8 @@ using System.Threading.Tasks;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Reflection;
-namespace EmployeeManagement;
+using EMS.DAL;
+namespace EMS.BAL;
 
 public class DropDownBal : IDropDownBal
 {

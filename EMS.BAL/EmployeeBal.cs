@@ -4,17 +4,15 @@ using System.IO;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Reflection;
-
-namespace EmployeeManagement;
+using EMS.DAL;
+namespace EMS.BAL;
 
 public class EmployeeBal : IEmployeeBal
 {
     private readonly IEmployeeDal _employeeDal;
-    private readonly IDropDownBal _dropDownBal;
-    public EmployeeBal(IEmployeeDal employeeDalObject, IDropDownBal dropDownBalObject)
+    public EmployeeBal(IEmployeeDal employeeDalObject)
     {
         _employeeDal = employeeDalObject;
-        _dropDownBal = dropDownBalObject;
     }
 
     public bool Add(Employee employee)

@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Reflection;
-
-namespace EmployeeManagement;
+using EMS.Common;
+namespace EMS.DAL;
 
 public class DropDownDal : IDropDownDal
 {

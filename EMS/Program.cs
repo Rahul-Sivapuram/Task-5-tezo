@@ -4,8 +4,10 @@ using CommandLine.Text;
 using Microsoft.Extensions.Configuration;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-
-namespace EmployeeManagement;
+using EMS.Common;
+using EMS.BAL;
+using EMS.DAL;
+namespace EMS;
 
 public class Options
 {
@@ -109,7 +111,7 @@ public static class Program
     {
         return new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("bin/Release/net8.0/win-x64/publish/appsettings.json", optional: false, reloadOnChange: true)
+            .AddJsonFile("C:\Users\rahul.sivapuram\OneDrive - Technovert\Documents\rahul\Task-5-tezo\EMS\bin\Release\net8.0\win-x64\appsettings.json", optional: false, reloadOnChange: true)
             .Build();
     }
 

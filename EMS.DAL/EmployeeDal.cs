@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-
-namespace EmployeeManagement;
+using EMS.BAL;
+using EMS.Common;
+namespace EMS.DAL;
 
 public class EmployeeDal : IEmployeeDal
 {

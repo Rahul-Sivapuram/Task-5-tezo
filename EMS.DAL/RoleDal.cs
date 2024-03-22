@@ -2,7 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-namespace EmployeeManagement;
+using EMS.Common;
+namespace EMS.DAL;
 
 public class RoleDal : IRoleDal
 {
