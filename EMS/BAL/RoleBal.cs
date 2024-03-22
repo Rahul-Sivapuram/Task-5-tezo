@@ -30,12 +30,17 @@ public class RoleBal : IRoleBal
     public List<string> GetRoleNamesForDepartment(int Id)
     {
         List<Role> roles = _roleDal.GetAll();
-        return roles
-            .Where(role => role.DepartmentId == Id)
-            .Select(role => role.Name)
-            .ToList();
+        List<string> roleNames = new List<string>();
+        foreach (var role in roles)
+        {
+            if (role.DepartmentId == Id)
+            {
+                roleNames.Add(role.Name);
+            }
+        }
+        return roleNames;
     }
-    
+
     public int GetRoleId(string roleName)
     {
         List<Role> roles = Get();

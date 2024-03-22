@@ -36,13 +36,15 @@ public class DropDownBal : IDropDownBal
     public int GetDepartmentId(string departmentName)
     {
         List<DropDown> departmentList = _dropDownDal.GetDepartments();
-        int ans= GetId(departmentList,departmentName);
-        if(ans!=-1){
-            return ans;
+        bool ans = departmentList.Any(department => department.Name == departmentName.ToUpper());
+        if(ans){
+            return GetId(departmentList,departmentName);
         }
-        else {
-            return -1;
-        }
+        else{
+            _dropDownDal.Insert(new DropDown { Id = departmentList.Count + 1 , Name = departmentName.ToUpper()});
+            departmentList = _dropDownDal.GetDepartments();
+            return GetId(departmentList,departmentName);
+        } 
     }
 
     public DropDown GetLocationByName(string userInput)

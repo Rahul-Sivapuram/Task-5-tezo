@@ -109,7 +109,7 @@ public static class Program
     {
         return new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .AddJsonFile("bin/Release/net8.0/win-x64/publish/appsettings.json", optional: false, reloadOnChange: true)
             .Build();
     }
 
@@ -241,10 +241,17 @@ public static class Program
         if (rolesList.Count == 0)
         {
             _console.ShowError("This Department has no roles");
-            return null;
         }
-        string roleName = ReadInputWithOptions("Role", rolesList);
-        employee.JobId = _roleBal.GetRoleId(roleName);
+        else
+        {
+            foreach (var item in rolesList)
+            {
+                _console.ShowInfo(item);
+            }
+            _console.ShowInfo("Enter role:");
+            string roleName = Console.ReadLine();
+            employee.JobId = _roleBal.GetRoleId(roleName);
+        }
 
         employee.ManagerId = _dropDownBal.GetManagerId(ReadInputWithOptions("Manager", _configuration["ManagerJsonPath"]));
         employee.ProjectId = _dropDownBal.GetProjectId(ReadInputWithOptions("Project", _configuration["ProjectJsonPath"]));
