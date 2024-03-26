@@ -11,6 +11,7 @@ namespace EMS.BAL;
 public class DropDownBal : IDropDownBal
 {
     private readonly IDropDownDal _dropDownDal;
+
     public DropDownBal(IDropDownDal dropDownDalObject)
     {
         _dropDownDal = dropDownDalObject;
@@ -38,38 +39,38 @@ public class DropDownBal : IDropDownBal
     {
         List<DropDown> departmentList = _dropDownDal.GetDepartments();
         bool ans = departmentList.Any(department => department.Name == departmentName.ToUpper());
-        if(ans){
-            return GetId(departmentList,departmentName);
+        if (ans)
+        {
+            return GetId(departmentList, departmentName);
         }
-        else{
-            _dropDownDal.Insert(new DropDown { Id = departmentList.Count + 1 , Name = departmentName.ToUpper()});
-            departmentList = _dropDownDal.GetDepartments();
-            return GetId(departmentList,departmentName);
-        } 
+        else
+        {
+            return -1;
+        }
     }
 
-    public DropDown GetLocationByName(string userInput)
+    public DropDown GetLocationByName(string locationName)
     {
         List<DropDown> data = _dropDownDal.GetLocations();
-        return GetItemByName(data, userInput);
+        return GetItemByName(data, locationName);
     }
 
-    public DropDown GetDepartmentByName(string userInput)
+    public DropDown GetDepartmentByName(string departmentName)
     {
         List<DropDown> data = _dropDownDal.GetDepartments();
-        return GetItemByName(data, userInput);
+        return GetItemByName(data, departmentName);
     }
 
-    public DropDown GetManagerByName(string userInput)
+    public DropDown GetManagerByName(string ManagerName)
     {
         List<DropDown> data = _dropDownDal.GetManagers();
-        return GetItemByName(data, userInput);
+        return GetItemByName(data, ManagerName);
     }
 
-    public DropDown GetProjectByName(string userInput)
+    public DropDown GetProjectByName(string projectName)
     {
         List<DropDown> data = _dropDownDal.GetProjects();
-        return GetItemByName(data, userInput);
+        return GetItemByName(data, projectName);
     }
 
     private int GetId(List<DropDown> items, string input)
@@ -84,15 +85,44 @@ public class DropDownBal : IDropDownBal
         return item;
     }
 
-    public string GetNameById(string filePath, int id)
+    public string GetNameByLocationId(int id)
     {
-        var item = _dropDownDal.GetDropDownItems(filePath).FirstOrDefault(item => item.Id == id);
-        return item?.Name;
+        var location = _dropDownDal.GetLocations().FirstOrDefault(x => x.Id == id);
+        return location != null ? location.Name : null;
     }
-    
-    public List<DropDown> GetOptions(string filePath)
+
+    public string GetNameByDepartmentId(int id)
     {
-        List<DropDown> dataList = _dropDownDal.GetDropDownItems(filePath);
-        return dataList;
+        var department = _dropDownDal.GetDepartments().FirstOrDefault(x => x.Id == id);
+        return department != null ? department.Name : null;
+    }
+    public string GetNameByManagerId(int id)
+    {
+        var manager = _dropDownDal.GetManagers().FirstOrDefault(x => x.Id == id);
+        return manager != null ? manager.Name : null;
+    }
+
+    public string GetNameByProjectId(int id)
+    {
+        var project = _dropDownDal.GetProjects().FirstOrDefault(x => x.Id == id);
+        return project != null ? project.Name : null;
+    }
+
+    public List<DropDown> GetDepartmentOptions()
+    {
+        return _dropDownDal.GetDepartments();
+    }
+    public List<DropDown> GetLocationOptions()
+    {
+        return _dropDownDal.GetLocations();
+    }
+
+    public List<DropDown> GetManagerOptions()
+    {
+        return _dropDownDal.GetManagers();
+    }
+    public List<DropDown> GetProjectOptions()
+    {
+        return _dropDownDal.GetProjects();
     }
 }

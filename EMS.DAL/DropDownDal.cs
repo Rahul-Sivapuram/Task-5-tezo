@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Reflection;
@@ -10,19 +11,15 @@ namespace EMS.DAL;
 
 public class DropDownDal : IDropDownDal
 {
-    private readonly string rolesPath, locationsPath, managersPath, projectsPath, departmentsPath;
     private readonly JsonHelper _jsonHelper;
-    public DropDownDal(string jobTitleJsonPath, string locationJsonPath, string managerJsonPath, string projectJsonPath, string departmentJsonPath,JsonHelper jsonHelperObject)
-    {
-        rolesPath = jobTitleJsonPath;
-        locationsPath = locationJsonPath;
-        managersPath = managerJsonPath;
-        projectsPath = projectJsonPath;
-        departmentsPath = departmentJsonPath;
+    private readonly IConfigurationRoot _configuration;
+    public DropDownDal(IConfigurationRoot configurationObject, JsonHelper jsonHelperObject)
+    {   
+        _configuration = configurationObject;
         _jsonHelper = jsonHelperObject;
     }
     
-    public List<DropDown> GetDropDownItems(string filePath)
+    private List<DropDown> GetDropDownItems(string filePath)
     {
         string jsonData = File.ReadAllText(filePath);
         List<DropDown> data = _jsonHelper.Deserialize<List<DropDown>>(jsonData);
@@ -31,29 +28,21 @@ public class DropDownDal : IDropDownDal
 
     public List<DropDown> GetLocations()
     {
-        return GetDropDownItems(locationsPath);
+        return GetDropDownItems(Path.Combine(_configuration["BasePath"], _configuration["LocationJsonPath"]));
     }
 
     public List<DropDown> GetDepartments()
     {
-        return GetDropDownItems(departmentsPath);
+        return GetDropDownItems(Path.Combine(_configuration["BasePath"], _configuration["DepartmentJsonPath"]));
     }
 
     public List<DropDown> GetManagers()
     {
-        return GetDropDownItems(managersPath);
+        return GetDropDownItems(Path.Combine(_configuration["BasePath"], _configuration["ManagerJsonPath"]));
     }
 
     public List<DropDown> GetProjects()
     {
-        return GetDropDownItems(projectsPath);
-    }
-
-    public bool Insert(DropDown item)
-    {
-        List<DropDown> data = GetDepartments();
-        data.Add(item);
-        _jsonHelper.Save(departmentsPath, data);
-        return true;
+        return GetDropDownItems(Path.Combine(_configuration["BasePath"], _configuration["ProjectJsonPath"]));
     }
 }

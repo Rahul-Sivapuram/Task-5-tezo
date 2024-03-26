@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EMS.DAL;
 namespace EMS.BAL;
 
 public interface IDropDownBal
@@ -14,6 +15,12 @@ public interface IDropDownBal
     DropDown GetDepartmentByName(string userInput);
     DropDown GetManagerByName(string userInput);
     DropDown GetProjectByName(string userInput);
-    string GetNameById(string filePath, int id);
-    List<DropDown> GetOptions(string filePath);
+    string GetNameByLocationId(int id);
+    string GetNameByDepartmentId(int id);
+    string GetNameByManagerId(int id);
+    string GetNameByProjectId(int id);
+    List<DropDown> GetDepartmentOptions();
+    List<DropDown> GetLocationOptions();
+    List<DropDown> GetManagerOptions();
+    List<DropDown> GetProjectOptions();
 }

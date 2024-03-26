@@ -6,6 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-          <ProjectReference Include= "C:\Users\rahul.sivapuram\OneDrive - Technovert\Documents\rahul\Task-5-tezo\EMS.Common"/>
+          <PackageReference Include="CommandLineParser" Version="2.9.1" />
+          <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
+          <ProjectReference Include= "..\EMS.Common\EMS.Common.csproj" />
     </ItemGroup>
 </Project>

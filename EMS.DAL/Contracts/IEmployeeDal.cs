@@ -7,9 +7,8 @@ namespace EMS.DAL;
 
 public interface IEmployeeDal
 {
-    List<EmployeeDetail> Filter(EmployeeFilter? employee);
+    List<EmployeeDetail> Filter(EmployeeFilter? employee,List<EmployeeDetail> employeeData);
     List<Employee> GetAll();
-    List<EmployeeDetail> GetAllDetails();
     bool Insert(List<Employee> data);
     bool Insert(Employee data);
     bool Update(string employeeNumber, Employee employee);

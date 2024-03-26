@@ -10,9 +10,13 @@ namespace EMS.BAL;
 public class EmployeeBal : IEmployeeBal
 {
     private readonly IEmployeeDal _employeeDal;
-    public EmployeeBal(IEmployeeDal employeeDalObject)
+    private readonly IRoleBal _roleBal;
+    private readonly IDropDownBal _dropDownBal;
+    public EmployeeBal(IEmployeeDal employeeDalObject, IRoleBal roleBalObject, IDropDownBal dropDownBalObject)
     {
         _employeeDal = employeeDalObject;
+        _roleBal = roleBalObject;
+        _dropDownBal = dropDownBalObject;
     }
 
     public bool Add(Employee employee)
@@ -33,20 +37,43 @@ public class EmployeeBal : IEmployeeBal
 
     public List<EmployeeDetail> Filter(EmployeeFilter employee)
     {
-        return _employeeDal.Filter(employee);
+        List<EmployeeDetail> employeeDetailsList = Get("");
+        return _employeeDal.Filter(employee, employeeDetailsList);
     }
 
     public List<EmployeeDetail> Get(string employeeNumber)
     {
-        List<EmployeeDetail> employeeData = _employeeDal.GetAllDetails();
+        List<Employee> employeeData = _employeeDal.GetAll();
+        List<EmployeeDetail> employeeDetailsList = new List<EmployeeDetail>();
+        foreach (var employee in employeeData)
+        {
+            EmployeeDetail employeeDetail = new EmployeeDetail
+            {
+                EmployeeNumber = employee.EmployeeNumber,
+                FirstName = employee.FirstName,
+                LastName = employee.LastName,
+                Dob = employee.Dob,
+                EmailId = employee.EmailId,
+                MobileNumber = employee.MobileNumber,
+                JoiningDate = employee.JoiningDate,
+            };
+            employeeDetail.LocationName = _dropDownBal.GetNameByLocationId((int)employee.LocationId) ?? "Unknown";
+            employeeDetail.JobName = _roleBal.GetNameByRoleId((int)employee.JobId) ?? "Unknown";
+            employeeDetail.DeptName = _dropDownBal.GetNameByDepartmentId((int)employee.DeptId) ?? "Unknown";
+            employeeDetail.ManagerName = _dropDownBal.GetNameByManagerId((int)employee.ManagerId) ?? "Unknown";
+            employeeDetail.ProjectName = _dropDownBal.GetNameByProjectId((int)employee.ProjectId) ?? "Unknown";
+
+            employeeDetailsList.Add(employeeDetail);
+        }
+        Console.WriteLine(employeeDetailsList);
         if (employeeNumber == null)
         {
-            return employeeData;
+            return employeeDetailsList;
         }
         else
         {
-            return employeeData.Where(e => e.EmployeeNumber == employeeNumber).ToList();
+            return employeeDetailsList.Where(e => e.EmployeeNumber == employeeNumber).ToList();
         }
-        return employeeData;
+        return employeeDetailsList;
     }
 }

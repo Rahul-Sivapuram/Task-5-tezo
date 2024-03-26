@@ -10,6 +10,4 @@ public interface IDropDownDal
     List<DropDown> GetDepartments();
     List<DropDown> GetManagers();
     List<DropDown> GetProjects();
-    bool Insert(DropDown item);
-    List<DropDown> GetDropDownItems(string filePath);
 }

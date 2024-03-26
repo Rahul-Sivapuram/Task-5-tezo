@@ -40,13 +40,14 @@ public static class Program
         _console = new ConsoleWriter();
         _basePath = _configuration["BasePath"];
         _jsonHelper = new JsonHelper();
-        _dropDownDal = new DropDownDal(Path.Combine(_basePath, _configuration["JobTitleJsonPath"]), Path.Combine(_basePath, _configuration["LocationJsonPath"]), Path.Combine(_basePath, _configuration["ManagerJsonPath"]), Path.Combine(_basePath, _configuration["ProjectJsonPath"]), Path.Combine(_basePath, _configuration["DepartmentJsonPath"]), _jsonHelper);
+        _dropDownDal = new DropDownDal(_configuration, _jsonHelper);
         _dropDownBal = new DropDownBal(_dropDownDal);
-        _employeeDal = new EmployeeDal(Path.Combine(_basePath, _configuration["EmployeesJsonPath"]), _jsonHelper, _dropDownBal, Path.Combine(_basePath, _configuration["JobTitleJsonPath"]), Path.Combine(_basePath, _configuration["LocationJsonPath"]), Path.Combine(_basePath, _configuration["ManagerJsonPath"]), Path.Combine(_basePath, _configuration["ProjectJsonPath"]), Path.Combine(_basePath, _configuration["DepartmentJsonPath"]));
-        _employeeBal = new EmployeeBal(_employeeDal, _dropDownBal);
+        _employeeDal = new EmployeeDal(Path.Combine(_basePath, _configuration["EmployeesJsonPath"]), _jsonHelper);
+        _employeeBal = new EmployeeBal(_employeeDal, _roleBal,_dropDownBal);
         _roleDal = new RoleDal(Path.Combine(_basePath, _configuration["JobTitleJsonPath"]), _jsonHelper);
         _roleBal = new RoleBal(_roleDal);
     }
+    
     public static void Main(string[] args)
     {
         Parser.Default.ParseArguments<Options>(args)
@@ -103,7 +104,7 @@ public static class Program
         List<Role> roles = _roleBal.Get();
         foreach (var item in roles)
         {
-            _console.ShowInfo(string.Format(Constants.RolesTemplate, item.Id, item.Name, _dropDownBal.GetNameById(Path.Combine(_basePath, _configuration["DepartmentJsonPath"]), (int)item.DepartmentId)));
+            _console.ShowInfo(string.Format(Constants.RolesTemplate, item.Id, item.Name, _dropDownBal.GetNameByDepartmentId((int)item.DepartmentId)));
         }
     }
 
@@ -111,7 +112,7 @@ public static class Program
     {
         return new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("C:\Users\rahul.sivapuram\OneDrive - Technovert\Documents\rahul\Task-5-tezo\EMS\bin\Release\net8.0\win-x64\appsettings.json", optional: false, reloadOnChange: true)
+            .AddJsonFile(@"C:\Users\rahul.sivapuram\OneDrive - Technovert\Documents\rahul\Task-5-tezo\EMS\bin\Release\net8.0\win-x64\publish\appsettings.json", optional: false, reloadOnChange: true)
             .Build();
     }
 
@@ -223,7 +224,7 @@ public static class Program
     private static Employee GetEmployeeInput()
     {
         Employee employee = new Employee();
-        employee.EmployeeNumber = ReadInput("Employee Number");
+        employee.EmployeeNumber = ReadValidInput("Enter Employee Number", s => string.IsNullOrEmpty(s) || Regex.IsMatch(s, @"^TZ\d{4}$"));
         employee.FirstName = ReadInput("First Name");
         employee.LastName = ReadInput("Last Name");
         employee.Dob = ReadInput("Date Of Birth (d/m/y)");
@@ -236,8 +237,10 @@ public static class Program
 
         employee.JoiningDate = ReadInput("Joining Date (d/m/y)");
 
-        employee.LocationId = _dropDownBal.GetLocationId(ReadInputWithOptions("Location", _configuration["LocationJsonPath"]));
-        employee.DeptId = _dropDownBal.GetDepartmentId(ReadInputWithOptions("Department", _configuration["DepartmentJsonPath"]));
+        PrintOptions(_dropDownBal.GetLocationOptions());
+        employee.LocationId = _dropDownBal.GetLocationId(ReadInput("Location"));
+        PrintOptions(_dropDownBal.GetDepartmentOptions());
+        employee.DeptId = _dropDownBal.GetDepartmentId(ReadInput("Department"));
 
         List<string> rolesList = _roleBal.GetRoleNamesForDepartment((int)employee.DeptId);
         if (rolesList.Count == 0)
@@ -246,6 +249,7 @@ public static class Program
         }
         else
         {
+            _console.ShowInfo("\nOptions");
             foreach (var item in rolesList)
             {
                 _console.ShowInfo(item);
@@ -254,9 +258,10 @@ public static class Program
             string roleName = Console.ReadLine();
             employee.JobId = _roleBal.GetRoleId(roleName);
         }
-
-        employee.ManagerId = _dropDownBal.GetManagerId(ReadInputWithOptions("Manager", _configuration["ManagerJsonPath"]));
-        employee.ProjectId = _dropDownBal.GetProjectId(ReadInputWithOptions("Project", _configuration["ProjectJsonPath"]));
+        PrintOptions(_dropDownBal.GetManagerOptions());
+        employee.ManagerId = _dropDownBal.GetManagerId(ReadInput("Manager"));
+        PrintOptions(_dropDownBal.GetProjectOptions());
+        employee.ProjectId = _dropDownBal.GetProjectId(ReadInput("Project"));
         return employee;
     }
 
@@ -279,12 +284,6 @@ public static class Program
         } while (!validator(input));
 
         return input;
-    }
-
-    private static string ReadInputWithOptions(string prompt, string jsonPath)
-    {
-        PrintOptions(_dropDownBal.GetOptions(Path.Combine(_basePath, jsonPath)));
-        return ReadInput(prompt + " name");
     }
 
     private static void PrintOptions(List<DropDown> dataList)

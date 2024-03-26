@@ -47,7 +47,7 @@ public class RoleBal : IRoleBal
         var item = roles.FirstOrDefault(i => string.Equals(i.Name, roleName.ToUpper(), StringComparison.OrdinalIgnoreCase));
         return item?.Id ?? -1;
     }
-    
+
     public Role GetRoleByName(string userInput)
     {
         List<Role> roles = Get();
@@ -55,6 +55,11 @@ public class RoleBal : IRoleBal
         return item;
     }
 
+    public string GetNameByRoleId(int id)
+    {
+        var role = Get().FirstOrDefault(x => x.Id == id);
+        return role != null ? role.Name : null;
+    }
     public List<Role> Get()
     {
         List<Role> roles = _roleDal.GetAll();

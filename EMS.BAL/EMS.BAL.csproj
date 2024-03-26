@@ -6,7 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-        <ProjectReference Include= "C:\Users\rahul.sivapuram\OneDrive - Technovert\Documents\rahul\Task-5-tezo\EMS.DAL"/>
+        <PackageReference Include="CommandLineParser" Version="2.9.1" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
+        <ProjectReference Include= "..\EMS.DAL\EMS.DAL.csproj" />
   </ItemGroup>
 
 </Project>
