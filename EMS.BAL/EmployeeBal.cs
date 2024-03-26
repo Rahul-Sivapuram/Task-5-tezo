@@ -47,6 +47,7 @@ public class EmployeeBal : IEmployeeBal
         List<EmployeeDetail> employeeDetailsList = new List<EmployeeDetail>();
         foreach (var employee in employeeData)
         {
+            
             EmployeeDetail employeeDetail = new EmployeeDetail
             {
                 EmployeeNumber = employee.EmployeeNumber,
@@ -65,7 +66,6 @@ public class EmployeeBal : IEmployeeBal
 
             employeeDetailsList.Add(employeeDetail);
         }
-        Console.WriteLine(employeeDetailsList);
         if (employeeNumber == null)
         {
             return employeeDetailsList;

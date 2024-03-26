@@ -43,11 +43,11 @@ public static class Program
         _dropDownDal = new DropDownDal(_configuration, _jsonHelper);
         _dropDownBal = new DropDownBal(_dropDownDal);
         _employeeDal = new EmployeeDal(Path.Combine(_basePath, _configuration["EmployeesJsonPath"]), _jsonHelper);
-        _employeeBal = new EmployeeBal(_employeeDal, _roleBal,_dropDownBal);
         _roleDal = new RoleDal(Path.Combine(_basePath, _configuration["JobTitleJsonPath"]), _jsonHelper);
         _roleBal = new RoleBal(_roleDal);
+        _employeeBal = new EmployeeBal(_employeeDal, _roleBal, _dropDownBal);
     }
-    
+
     public static void Main(string[] args)
     {
         Parser.Default.ParseArguments<Options>(args)
